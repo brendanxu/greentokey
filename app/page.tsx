@@ -1,76 +1,15 @@
-import { Suspense } from 'react'
-import Navbar from '@/components/layout/Navbar'
-import HeroSection from '@/components/sections/HeroSection'
-import { ErrorBoundary } from '@/components/ui'
+import React from 'react'
 
-// Lazy import legacy components with error boundaries
-import Partners from '@/components/Partners'
-import Solution from '@/components/Solution'
-import Process from '@/components/Process'
-import AssetFocus from '@/components/AssetFocus'
-import ServiceSections from '@/components/ServiceSections'
-import WhyChooseUs from '@/components/WhyChooseUs'
-import Footer from '@/components/Footer'
-
-// Loading component
-function LoadingSection() {
+export default function HomePage() {
   return (
-    <div className="section-padding">
-      <div className="container">
-        <div className="flex justify-center items-center h-32">
-          <div className="text-text-secondary">Loading...</div>
+    <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-5xl font-bold mb-4">GreenLink Capital</h1>
+        <p className="text-xl text-gray-400">The Institutional Gateway to Verifiable Green Assets</p>
+        <div className="mt-8 text-sm text-gray-600">
+          Next.js App Router - {new Date().toISOString()}
         </div>
       </div>
     </div>
-  )
-}
-
-// Section wrapper with error boundary
-function SafeSection({ children }: { children: React.ReactNode }) {
-  return (
-    <ErrorBoundary>
-      <Suspense fallback={<LoadingSection />}>
-        {children}
-      </Suspense>
-    </ErrorBoundary>
-  )
-}
-
-export default function Home() {
-  return (
-    <>
-      <Navbar />
-      <main className="min-h-screen bg-background">
-        <HeroSection />
-        
-        <SafeSection>
-          <Partners />
-        </SafeSection>
-        
-        <SafeSection>
-          <Solution />
-        </SafeSection>
-        
-        <SafeSection>
-          <Process />
-        </SafeSection>
-        
-        <SafeSection>
-          <AssetFocus />
-        </SafeSection>
-        
-        <SafeSection>
-          <ServiceSections />
-        </SafeSection>
-        
-        <SafeSection>
-          <WhyChooseUs />
-        </SafeSection>
-      </main>
-      
-      <SafeSection>
-        <Footer />
-      </SafeSection>
-    </>
   )
 }
