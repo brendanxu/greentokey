@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;450;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -7,8 +7,8 @@
 
 @layer base {
   :root {
-    --background: 10 10 10;
-    --foreground: 255 255 255;
+    --background: 255 255 255;
+    --foreground: 22 26 35;
   }
 
   * {
@@ -16,31 +16,38 @@
   }
 
   body {
-    @apply bg-background text-text-primary;
+    @apply bg-background text-text-primary font-sans;
+    font-size: 14px;
+    line-height: 21px;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+    @apply font-heading tracking-tight text-text-primary;
   }
 
   h1 {
-    @apply text-4xl md:text-5xl lg:text-6xl;
+    @apply text-4xl md:text-5xl lg:text-6xl font-heading;
   }
 
   h2 {
-    @apply text-3xl md:text-4xl;
+    @apply text-3xl md:text-4xl font-heading;
   }
 
   h3 {
-    @apply text-2xl md:text-3xl;
+    @apply text-2xl md:text-3xl font-heading;
   }
 
   h4 {
-    @apply text-xl md:text-2xl;
+    @apply text-xl md:text-2xl font-heading;
   }
 
   p {
     @apply text-text-secondary leading-relaxed;
+  }
+
+  /* ADDX-inspired navigation styles */
+  nav {
+    @apply text-nav font-nav;
   }
 }
 
@@ -49,24 +56,45 @@
     @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
   }
 
+  /* ADDX-inspired button styles */
   .btn-primary {
-    @apply bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-primary/20 active:scale-95;
+    @apply bg-primary text-white font-medium py-2 px-4 rounded-md transition-all duration-200 hover:bg-primary-dark;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 6px;
   }
 
   .btn-secondary {
-    @apply bg-transparent border border-primary text-primary hover:bg-primary hover:text-white font-semibold py-3 px-8 rounded-lg transition-all duration-200;
+    @apply bg-transparent border border-primary text-primary hover:bg-primary hover:text-white font-medium py-2 px-4 rounded-md transition-all duration-200;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 6px;
   }
 
+  /* ADDX-inspired card styles */
   .card {
-    @apply bg-background-secondary border border-border rounded-xl p-6 hover:border-border-light transition-all duration-300;
+    @apply bg-background border border-border rounded-lg p-6 hover:border-border-light transition-all duration-300;
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-accent to-accent-dark bg-clip-text text-transparent;
   }
 
   .section-padding {
     @apply py-16 md:py-24 lg:py-32;
+  }
+
+  /* ADDX-inspired navigation menu styles */
+  .nav-menu {
+    @apply text-nav font-nav text-text-primary;
+  }
+
+  .nav-dropdown {
+    @apply bg-background border border-border rounded-lg shadow-lg p-8;
+  }
+
+  .menu-item {
+    @apply block p-4 hover:bg-background-secondary transition-colors rounded-md;
   }
 }
 

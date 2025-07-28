@@ -9,37 +9,46 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // ADDX-inspired color system
         background: {
-          DEFAULT: '#0a0a0a',
-          secondary: '#0f0f0f',
-          tertiary: '#1a1a1a',
+          DEFAULT: '#FFFFFF', // Clean white background like ADDX
+          secondary: '#F8F9FA',
+          tertiary: '#F1F3F4',
         },
         primary: {
-          DEFAULT: '#00D4AA',
+          DEFAULT: '#161A23', // ADDX's dark text color
+          dark: '#0D1117',
+          light: '#24292F',
+        },
+        accent: {
+          DEFAULT: '#00D4AA', // Green accent for green finance theme
           dark: '#00a984',
           light: '#33ddbb',
         },
-        accent: {
-          DEFAULT: '#0EA5E9',
-          dark: '#0284c7',
-          light: '#38bdf8',
-        },
         text: {
-          primary: '#FFFFFF',
-          secondary: '#A1A1AA',
-          tertiary: '#71717A',
+          primary: '#161A23', // ADDX main text color
+          secondary: 'rgba(0, 0, 0, 0.85)', // ADDX secondary text
+          tertiary: 'rgba(0, 0, 0, 0.65)',
         },
         border: {
-          DEFAULT: '#27272a',
-          light: '#3f3f46',
+          DEFAULT: 'rgba(0, 0, 0, 0.1)',
+          light: 'rgba(0, 0, 0, 0.05)',
         },
       },
       fontFamily: {
         sans: ['Inter', 'Noto Sans SC', 'system-ui', '-apple-system', 'sans-serif'],
       },
       fontSize: {
+        // ADDX-inspired typography scale
+        'nav': ['15px', { lineHeight: '19.5px', fontWeight: '500' }],
         'hero': ['4.5rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
         'hero-mobile': ['3rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+        'button': ['14px', { lineHeight: '1.4', fontWeight: '500' }],
+      },
+      fontWeight: {
+        'nav': '500', // ADDX navigation weight
+        'heading': '450', // ADDX heading weight
+        'medium': '500',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
