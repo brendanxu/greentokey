@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;450;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -6,95 +6,130 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 255 255 255;
-    --foreground: 22 26 35;
+  * {
+    @apply border-border-primary;
   }
 
-  * {
-    @apply border-border;
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-background text-text-primary font-sans;
-    font-size: 14px;
-    line-height: 21px;
+    @apply bg-bg-primary text-text-primary font-manrope antialiased;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-heading tracking-tight text-text-primary;
-  }
-
+  /* ADDX 排版层级 - 精确实现 */
   h1 {
-    @apply text-4xl md:text-5xl lg:text-6xl font-heading;
+    @apply text-h1-mobile md:text-h1-desktop font-bold text-text-primary;
   }
 
   h2 {
-    @apply text-3xl md:text-4xl font-heading;
+    @apply text-h2-mobile md:text-h2-desktop font-bold text-text-primary;
   }
 
   h3 {
-    @apply text-2xl md:text-3xl font-heading;
+    @apply text-h3-mobile md:text-h3-desktop font-semibold text-text-primary;
   }
 
   h4 {
-    @apply text-xl md:text-2xl font-heading;
+    @apply text-h4-mobile md:text-h4-desktop font-semibold text-text-primary;
   }
 
   p {
-    @apply text-text-secondary leading-relaxed;
+    @apply text-body-md text-text-secondary;
   }
 
-  /* ADDX-inspired navigation styles */
-  nav {
-    @apply text-nav font-nav;
+  /* 可访问性焦点状态 - WCAG 2.1 AA */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-blue;
+  }
+
+  /* 链接默认样式 */
+  a {
+    @apply text-link font-medium text-text-secondary hover:text-primary-blue transition-colors duration-300;
+  }
+
+  /* 按钮重置 */
+  button {
+    @apply font-manrope;
   }
 }
 
 @layer components {
+  /* ADDX 布局系统 */
   .container {
-    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+    @apply max-w-container mx-auto px-6;
   }
 
-  /* ADDX-inspired button styles */
+  /* ADDX 按钮组件 - 精确规格 */
   .btn-primary {
-    @apply bg-primary text-white font-medium py-2 px-4 rounded-md transition-all duration-200 hover:bg-primary-dark;
-    font-size: 14px;
-    padding: 8px 16px;
-    border-radius: 6px;
+    @apply bg-primary-blue text-text-on-dark text-button py-3 px-6 rounded-lg;
+    @apply transition-all duration-300 ease-in-out;
+    @apply hover:brightness-110 hover:scale-103 hover:shadow-button-hover;
+    @apply active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-blue;
   }
 
   .btn-secondary {
-    @apply bg-transparent border border-primary text-primary hover:bg-primary hover:text-white font-medium py-2 px-4 rounded-md transition-all duration-200;
-    font-size: 14px;
-    padding: 8px 16px;
-    border-radius: 6px;
+    @apply bg-transparent text-text-primary text-button py-3 px-6 rounded-lg;
+    @apply border border-border-primary transition-all duration-300 ease-in-out;
+    @apply hover:bg-bg-subtle hover:text-primary-blue hover:border-primary-blue;
+    @apply active:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-blue;
   }
 
-  /* ADDX-inspired card styles */
-  .card {
-    @apply bg-background border border-border rounded-lg p-6 hover:border-border-light transition-all duration-300;
+  .btn-tertiary {
+    @apply bg-transparent text-text-secondary text-button;
+    @apply hover:text-primary-blue hover:underline transition-colors duration-300;
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-blue;
   }
 
-  .gradient-text {
-    @apply bg-gradient-to-r from-accent to-accent-dark bg-clip-text text-transparent;
+  /* ADDX 卡片组件 */
+  .card-feature {
+    @apply bg-bg-primary p-6 rounded-xl border border-transparent;
+    @apply transition-all duration-300 hover:-translate-y-1;
+    @apply hover:border-border-primary hover:shadow-card-hover;
   }
 
-  .section-padding {
-    @apply py-16 md:py-24 lg:py-32;
+  .card-testimonial {
+    @apply bg-bg-subtle p-8 rounded-2xl;
   }
 
-  /* ADDX-inspired navigation menu styles */
-  .nav-menu {
-    @apply text-nav font-nav text-text-primary;
+  /* ADDX 导航系统 */
+  .nav-header {
+    @apply sticky top-0 z-50 transition-all duration-300 ease-in-out;
+  }
+
+  .nav-header.scrolled {
+    @apply bg-white bg-opacity-80 backdrop-blur-header shadow-header-scroll;
   }
 
   .nav-dropdown {
-    @apply bg-background border border-border rounded-lg shadow-lg p-8;
+    @apply bg-bg-primary rounded-xl shadow-dropdown p-4;
   }
 
-  .menu-item {
-    @apply block p-4 hover:bg-background-secondary transition-colors rounded-md;
+  /* ADDX 区块间距 */
+  .section-spacing {
+    @apply py-16 md:py-24 lg:py-32;
+  }
+
+  /* ADDX 文本样式 */
+  .text-hero {
+    @apply text-h1-mobile md:text-h1-desktop font-bold text-text-primary;
+  }
+
+  .text-lead {
+    @apply text-body-lg-mobile md:text-body-lg-desktop text-text-secondary;
+  }
+
+  /* 绿色金融主题渐变 */
+  .gradient-green {
+    @apply bg-gradient-to-r from-green-primary to-green-dark bg-clip-text text-transparent;
+  }
+
+  /* 可访问性辅助类 */
+  .sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+    clip: rect(0, 0, 0, 0);
   }
 }
 
@@ -129,9 +164,9 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-background;
+  @apply bg-bg-subtle;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-border rounded-full hover:bg-border-light;
+  @apply bg-border-primary rounded-full hover:bg-text-secondary;
 }

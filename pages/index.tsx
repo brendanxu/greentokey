@@ -1,292 +1,404 @@
 'use client'
-import React, { useState } from 'react'
+import React from 'react'
+import { motion } from 'framer-motion'
+import { 
+  CheckCircleIcon, 
+  ChartBarIcon, 
+  BoltIcon, 
+  CurrencyDollarIcon,
+  HeartIcon,
+  ShieldCheckIcon,
+  BuildingOfficeIcon
+} from '@heroicons/react/24/outline'
+import { Header } from '../components/layout/Header'
+import { Button } from '../components/ui/Button'
+import { FeatureCard, TestimonialCard } from '../components/ui/Card'
 
 export default function HomePage() {
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const features = [
+    {
+      icon: <CheckCircleIcon className="w-6 h-6" />,
+      title: 'National Standard',
+      description: 'Quality assured by China\'s Ministry of Ecology and Environment with rigorous verification protocols'
+    },
+    {
+      icon: <ChartBarIcon className="w-6 h-6" />,
+      title: 'Data-Driven',
+      description: 'IoT monitoring and blockchain verification ensure authentic emission reductions with real-time data'
+    },
+    {
+      icon: <BoltIcon className="w-6 h-6" />,
+      title: 'High Impact',
+      description: 'Focus on methane reduction projects with measurable environmental and financial returns'
+    },
+    {
+      icon: <CurrencyDollarIcon className="w-6 h-6" />,
+      title: 'Market Value',
+      description: 'Pricing referenced to China\'s national ETS with transparent market mechanisms'
+    }
+  ]
+
+  const testimonials = [
+    {
+      quote: "GreenLink Capital has revolutionized our approach to ESG investing. Their CCER tokenization platform provides unprecedented transparency and liquidity in the green finance space.",
+      author: {
+        name: "Sarah Chen",
+        title: "Chief Investment Officer, Asia Green Fund",
+        avatar: "/api/placeholder/48/48"
+      }
+    },
+    {
+      quote: "The real-time verification and blockchain-based transparency gives us confidence in the environmental impact of our investments. This is the future of sustainable finance.",
+      author: {
+        name: "Michael Zhang",
+        title: "ESG Portfolio Manager, China Asset Management",
+        avatar: "/api/placeholder/48/48"
+      }
+    },
+    {
+      quote: "Working with GreenLink has allowed us to access premium CCER assets with institutional-grade due diligence. The platform's efficiency is remarkable.",
+      author: {
+        name: "Lisa Wang",
+        title: "Managing Director, Sustainable Capital Partners",
+        avatar: "/api/placeholder/48/48"
+      }
+    }
+  ]
+
+  const stats = [
+    { value: '¥50B+', label: 'CCER Assets Under Management' },
+    { value: '100+', label: 'Institutional Partners' },
+    { value: '99.5%', label: 'Carbon Reduction Verified' },
+    { value: '24/7', label: 'Real-time Monitoring' }
+  ]
+
+  const trustFeatures = [
+    {
+      icon: <ShieldCheckIcon className="w-8 h-8" />,
+      title: 'Regulatory Compliance',
+      description: 'Fully licensed and regulated by China\'s financial authorities'
+    },
+    {
+      icon: <BuildingOfficeIcon className="w-8 h-8" />,
+      title: 'Institutional Grade',
+      description: 'Professional custody and asset management services'
+    },
+    {
+      icon: <HeartIcon className="w-8 h-8" />,
+      title: 'Impact Verified',
+      description: 'Third-party verification of environmental impact metrics'
+    }
+  ]
 
   return (
-    <div className="min-h-screen bg-background text-text-primary">
-      {/* ADDX-inspired Navigation */}
-      <nav className="bg-background border-b border-border sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">G</span>
-              </div>
-              <span className="text-xl font-semibold text-text-primary">GreenLink Capital</span>
-            </div>
+    <div className="min-h-screen bg-bg-primary">
+      <Header />
 
-            {/* Main Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              {/* Solutions Dropdown */}
-              <div 
-                className="relative"
-                onMouseEnter={() => setActiveDropdown('solutions')}
-                onMouseLeave={() => setActiveDropdown(null)}
-              >
-                <button className="nav-menu hover:text-text-tertiary transition-colors px-4 py-2">
-                  Solutions
-                </button>
-                {activeDropdown === 'solutions' && (
-                  <div className="absolute top-full left-0 mt-2 w-96 nav-dropdown">
-                    <div className="grid grid-cols-1 gap-1">
-                      <div className="menu-item">
-                        <h3 className="font-medium text-text-primary mb-1">CCER Tokenization</h3>
-                        <p className="text-sm text-text-secondary">Transform carbon credits into digital assets</p>
-                      </div>
-                      <div className="menu-item">
-                        <h3 className="font-medium text-text-primary mb-1">Green Asset Management</h3>
-                        <p className="text-sm text-text-secondary">Professional portfolio management for ESG investments</p>
-                      </div>
-                      <div className="menu-item">
-                        <h3 className="font-medium text-text-primary mb-1">ESG Verification</h3>
-                        <p className="text-sm text-text-secondary">Real-time monitoring and impact measurement</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Products Dropdown */}
-              <div 
-                className="relative"
-                onMouseEnter={() => setActiveDropdown('products')}
-                onMouseLeave={() => setActiveDropdown(null)}
-              >
-                <button className="nav-menu hover:text-text-tertiary transition-colors px-4 py-2">
-                  Products
-                </button>
-                {activeDropdown === 'products' && (
-                  <div className="absolute top-full left-0 mt-2 w-96 nav-dropdown">
-                    <div className="grid grid-cols-1 gap-1">
-                      <div className="menu-item">
-                        <h3 className="font-medium text-text-primary mb-1">Green Bonds</h3>
-                        <p className="text-sm text-text-secondary">Fixed-income securities for environmental projects</p>
-                      </div>
-                      <div className="menu-item">
-                        <h3 className="font-medium text-text-primary mb-1">Carbon Credits</h3>
-                        <p className="text-sm text-text-secondary">Verified CCER from renewable energy projects</p>
-                      </div>
-                      <div className="menu-item">
-                        <h3 className="font-medium text-text-primary mb-1">ESG Funds</h3>
-                        <p className="text-sm text-text-secondary">Diversified sustainable investment portfolios</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* About */}
-              <a href="#about" className="nav-menu hover:text-text-tertiary transition-colors px-4 py-2">
-                About
-              </a>
-
-              {/* CTA Buttons */}
-              <div className="flex items-center space-x-3 ml-4">
-                <button className="text-text-primary hover:text-text-tertiary transition-colors px-4 py-2">
-                  Learn More
-                </button>
-                <button className="btn-primary">
-                  Start Investing
-                </button>
-              </div>
-            </div>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <button className="text-text-primary hover:text-text-tertiary">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero Section - ADDX-inspired */}
-      <main className="bg-background">
-        <section id="home" className="relative section-padding">
+      {/* Hero Section - ADDX 规格 */}
+      <main>
+        <section className="section-spacing">
           <div className="container">
-            <div className="max-w-6xl mx-auto">
+            <motion.div
+              className="text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
               {/* Announcement Badge */}
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center space-x-2 bg-accent/10 border border-accent/20 rounded-full px-4 py-2">
-                  <span className="w-2 h-2 bg-accent rounded-full"></span>
-                  <span className="text-sm text-accent font-medium">Leading the Green Finance Revolution</span>
-                </div>
-              </div>
+              <motion.div 
+                className="inline-flex items-center space-x-2 bg-green-primary/10 border border-green-primary/20 rounded-full px-4 py-2 mb-8"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+              >
+                <span className="w-2 h-2 bg-green-primary rounded-full"></span>
+                <span className="text-caption-desktop text-green-primary font-medium">
+                  Leading the Green Finance Revolution
+                </span>
+              </motion.div>
               
-              {/* Main Heading */}
-              <div className="text-center mb-12">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading text-text-primary mb-6 leading-tight">
-                  The Institutional Gateway to
-                  <br />
-                  <span className="gradient-text">Verifiable Green Assets</span>
-                </h1>
-                
-                <p className="text-lg md:text-xl text-text-secondary max-w-4xl mx-auto mb-10 leading-relaxed">
-                  We provide an end-to-end, compliant solution for tokenizing China&apos;s high-quality CCER assets, 
-                  connecting global ESG capital with measurable environmental impact.
-                </p>
-                
-                {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <button className="btn-primary text-base py-3 px-8">
-                    Discover Our Solution
-                  </button>
-                  <button className="btn-secondary text-base py-3 px-8">
-                    Schedule Consultation
-                  </button>
-                </div>
-              </div>
-            
-              {/* Stats Grid - ADDX inspired */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16">
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-accent mb-2">
-                    ¥50B+
-                  </div>
-                  <div className="text-sm text-text-secondary">
-                    CCER Assets Under Management
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-accent mb-2">
-                    100+
-                  </div>
-                  <div className="text-sm text-text-secondary">
-                    Institutional Partners
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-accent mb-2">
-                    99.5%
-                  </div>
-                  <div className="text-sm text-text-secondary">
-                    Carbon Reduction Verified
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-accent mb-2">
-                    24/7
-                  </div>
-                  <div className="text-sm text-text-secondary">
-                    Real-time Monitoring
-                  </div>
-                </div>
-              </div>
-            </div>
+              {/* Hero Heading */}
+              <motion.h1 
+                className="text-hero mb-6"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+              >
+                The Institutional Gateway to
+                <br />
+                <span className="gradient-green">Verifiable Green Assets</span>
+              </motion.h1>
+              
+              <motion.p 
+                className="text-lead max-w-4xl mx-auto mb-12"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.6 }}
+              >
+                We provide an end-to-end, compliant solution for tokenizing China&apos;s high-quality CCER assets, 
+                connecting global ESG capital with measurable environmental impact.
+              </motion.p>
+              
+              {/* CTA Buttons */}
+              <motion.div 
+                className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.6 }}
+              >
+                <Button variant="green-primary" size="lg">
+                  Discover Our Solution
+                </Button>
+                <Button variant="secondary" size="lg">
+                  Schedule Consultation
+                </Button>
+              </motion.div>
+
+              {/* Stats Grid */}
+              <motion.div 
+                className="grid grid-cols-2 md:grid-cols-4 gap-8"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.6 }}
+              >
+                {stats.map((stat, index) => (
+                  <motion.div 
+                    key={stat.label}
+                    className="text-center"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 + index * 0.1, duration: 0.4 }}
+                  >
+                    <div className="text-h2-mobile md:text-h2-desktop font-bold text-green-primary mb-2">
+                      {stat.value}
+                    </div>
+                    <div className="text-caption-desktop text-text-secondary">
+                      {stat.label}
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
           </div>
         </section>
 
-        {/* Features Section - ADDX inspired */}
-        <section className="section-padding bg-background-secondary">
+        {/* Features Section */}
+        <section className="section-spacing bg-bg-subtle">
           <div className="container">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading text-text-primary mb-6">
+            <motion.div 
+              className="text-center mb-16"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-h2-mobile md:text-h2-desktop mb-6">
                 Why Choose CCER Assets?
               </h2>
-              <p className="text-lg text-text-secondary max-w-3xl mx-auto">
+              <p className="text-lead max-w-3xl mx-auto">
                 China&apos;s CCER represents the gold standard in verifiable carbon reduction assets, 
                 providing institutional investors with transparent, measurable environmental impact.
               </p>
-            </div>
+            </motion.div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="card">
-                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-text-primary mb-3">National Standard</h3>
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  Quality assured by China&apos;s Ministry of Ecology and Environment with rigorous verification protocols
-                </p>
-              </div>
-              
-              <div className="card">
-                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-text-primary mb-3">Data-Driven</h3>
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  IoT monitoring and blockchain verification ensure authentic emission reductions with real-time data
-                </p>
-              </div>
-              
-              <div className="card">
-                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-text-primary mb-3">High Impact</h3>
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  Focus on methane reduction projects with measurable environmental and financial returns
-                </p>
-              </div>
-              
-              <div className="card">
-                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-text-primary mb-3">Market Value</h3>
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  Pricing referenced to China&apos;s national ETS with transparent market mechanisms
-                </p>
-              </div>
+              {features.map((feature, index) => (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                >
+                  <FeatureCard {...feature} />
+                </motion.div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* Footer - ADDX inspired */}
-        <footer className="bg-background border-t border-border py-16">
+        {/* Trust Section */}
+        <section className="section-spacing">
           <div className="container">
-            <div className="text-center">
-              {/* Logo */}
-              <div className="flex items-center justify-center space-x-3 mb-6">
-                <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">G</span>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
+                <h2 className="text-h2-mobile md:text-h2-desktop mb-6">
+                  A Trusted Platform
+                </h2>
+                <p className="text-lead mb-8">
+                  Built with institutional-grade security and compliance standards, 
+                  our platform ensures the highest level of trust and transparency 
+                  in green finance operations.
+                </p>
+                <div className="space-y-6">
+                  {trustFeatures.map((feature, index) => (
+                    <motion.div 
+                      key={feature.title}
+                      className="flex items-start space-x-4"
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.1, duration: 0.4 }}
+                    >
+                      <div className="text-green-primary flex-shrink-0">
+                        {feature.icon}
+                      </div>
+                      <div>
+                        <h3 className="text-h4-mobile font-semibold text-text-primary mb-2">
+                          {feature.title}
+                        </h3>
+                        <p className="text-body-md text-text-secondary">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
-                <span className="text-2xl font-semibold text-text-primary">GreenLink Capital</span>
-              </div>
+              </motion.div>
               
-              {/* Description */}
-              <p className="text-text-secondary max-w-2xl mx-auto mb-8 leading-relaxed">
-                The institutional gateway to verifiable green assets. We&apos;re transforming how global capital 
-                accesses China&apos;s premium environmental impact opportunities through advanced tokenization technology.
+              <motion.div
+                className="relative"
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
+                <div className="bg-gradient-to-br from-green-primary/20 to-green-dark/20 rounded-2xl p-8 aspect-square flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-24 h-24 bg-green-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <ShieldCheckIcon className="w-12 h-12 text-green-primary" />
+                    </div>
+                    <p className="text-h3-mobile font-semibold text-text-primary">
+                      Institutional Grade Security
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials Section */}
+        <section className="section-spacing bg-bg-subtle">
+          <div className="container">
+            <motion.div 
+              className="text-center mb-16"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-h2-mobile md:text-h2-desktop mb-6">
+                Trusted by Industry Leaders
+              </h2>
+              <p className="text-lead max-w-3xl mx-auto">
+                Join hundreds of institutional investors who rely on our platform 
+                for transparent, compliant access to China&apos;s premium green assets.
               </p>
-              
-              {/* Links */}
-              <div className="flex flex-wrap justify-center gap-8 mb-8 text-sm">
-                <a href="#solutions" className="text-text-secondary hover:text-text-primary transition-colors">
-                  Solutions
-                </a>
-                <a href="#products" className="text-text-secondary hover:text-text-primary transition-colors">
-                  Products
-                </a>
-                <a href="#about" className="text-text-secondary hover:text-text-primary transition-colors">
-                  About Us
-                </a>
-                <a href="#contact" className="text-text-secondary hover:text-text-primary transition-colors">
-                  Contact
-                </a>
-                <a href="#legal" className="text-text-secondary hover:text-text-primary transition-colors">
-                  Legal
-                </a>
+            </motion.div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {testimonials.map((testimonial, index) => (
+                <motion.div
+                  key={testimonial.author.name}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.6 }}
+                >
+                  <TestimonialCard {...testimonial} />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="section-spacing">
+          <div className="container">
+            <motion.div 
+              className="text-center bg-gradient-to-r from-green-primary/5 to-green-dark/5 rounded-2xl p-16"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-h2-mobile md:text-h2-desktop mb-6">
+                Ready to Transform Your ESG Portfolio?
+              </h2>
+              <p className="text-lead max-w-2xl mx-auto mb-8">
+                Join the institutional gateway to China&apos;s verified green assets. 
+                Experience transparency, compliance, and impact at scale.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button variant="green-primary" size="lg">
+                  Start Your Journey
+                </Button>
+                <Button variant="secondary" size="lg">
+                  Schedule Demo
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="bg-text-primary text-text-on-dark">
+          <div className="container">
+            <div className="section-spacing">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div className="md:col-span-2">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <div className="w-10 h-10 bg-green-primary rounded-lg flex items-center justify-center">
+                      <span className="text-text-on-dark font-bold text-xl">G</span>
+                    </div>
+                    <span className="text-2xl font-bold">GreenLink Capital</span>
+                  </div>
+                  <p className="text-body-md text-text-on-dark/80 max-w-md leading-relaxed">
+                    The institutional gateway to verifiable green assets. 
+                    Transforming global access to China&apos;s premium environmental 
+                    impact opportunities through advanced tokenization.
+                  </p>
+                </div>
+                
+                <div>
+                  <h3 className="text-h4-mobile font-semibold mb-4">Solutions</h3>
+                  <div className="space-y-2">
+                    <a href="#" className="block text-body-md text-text-on-dark/80 hover:text-green-primary transition-colors">
+                      CCER Tokenization
+                    </a>
+                    <a href="#" className="block text-body-md text-text-on-dark/80 hover:text-green-primary transition-colors">
+                      ESG Verification
+                    </a>
+                    <a href="#" className="block text-body-md text-text-on-dark/80 hover:text-green-primary transition-colors">
+                      Asset Management
+                    </a>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="text-h4-mobile font-semibold mb-4">Company</h3>
+                  <div className="space-y-2">
+                    <a href="#" className="block text-body-md text-text-on-dark/80 hover:text-green-primary transition-colors">
+                      About Us
+                    </a>
+                    <a href="#" className="block text-body-md text-text-on-dark/80 hover:text-green-primary transition-colors">
+                      Contact
+                    </a>
+                    <a href="#" className="block text-body-md text-text-on-dark/80 hover:text-green-primary transition-colors">
+                      Legal
+                    </a>
+                  </div>
+                </div>
               </div>
               
-              {/* Copyright */}
-              <div className="pt-8 border-t border-border">
-                <p className="text-text-tertiary text-sm">
+              <div className="border-t border-text-on-dark/20 pt-8 mt-8 text-center">
+                <p className="text-caption-desktop text-text-on-dark/60">
                   © 2024 GreenLink Capital. All rights reserved. | Licensed by relevant financial authorities.
                 </p>
               </div>
