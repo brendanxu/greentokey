@@ -1,7 +1,5 @@
 // Performance optimization imports
-const { NextBundleAnalyzer } = require('@next/bundle-analyzer');
-
-const withBundleAnalyzer = NextBundleAnalyzer({
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
   openAnalyzer: true,
 });
