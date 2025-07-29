@@ -1,0 +1,64 @@
+{
+  "name": "@greenlink/design-tokens",
+  "version": "1.0.0",
+  "description": "GreenLink Capital Design Tokens - ADDX-inspired design system for green finance",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./tokens": {
+      "types": "./dist/tokens.d.ts",
+      "import": "./dist/tokens.mjs",
+      "require": "./dist/tokens.js"
+    },
+    "./themes": {
+      "types": "./dist/themes.d.ts",
+      "import": "./dist/themes.mjs",
+      "require": "./dist/themes.js"
+    },
+    "./tailwind": {
+      "types": "./dist/tailwind.d.ts",
+      "import": "./dist/tailwind.mjs",
+      "require": "./dist/tailwind.js"
+    }
+  },
+  "files": [
+    "dist/**",
+    "tokens/**",
+    "themes/**"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/tokens.ts src/themes.ts src/tailwind.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts src/tokens.ts src/themes.ts src/tailwind.ts --format cjs,esm --dts --watch",
+    "lint": "eslint src/",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "build-tokens": "node scripts/build-tokens.js",
+    "generate-css": "node scripts/generate-css.js"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "color2k": "^2.0.3",
+    "culori": "^4.0.1"
+  },
+  "devDependencies": {
+    "@greenlink/tsconfig": "workspace:*",
+    "@types/node": "^24.1.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.8.3",
+    "style-dictionary": "^4.0.1"
+  },
+  "keywords": [
+    "design-tokens",
+    "design-system",
+    "tailwind",
+    "addx",
+    "green-finance",
+    "multi-theme"
+  ]
+}

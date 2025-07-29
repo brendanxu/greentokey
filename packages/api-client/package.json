@@ -1,0 +1,35 @@
+{
+  "name": "@greenlink/api-client",
+  "version": "1.0.0",
+  "description": "GreenLink Capital API Client - Type-safe API client with authentication and error handling",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "lint": "eslint src/",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.18.1",
+    "axios": "^1.6.7",
+    "msw": "^2.0.11",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@greenlink/tsconfig": "workspace:*",
+    "@types/node": "^24.1.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.8.3"
+  }
+}

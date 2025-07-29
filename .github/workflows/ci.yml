@@ -1,0 +1,538 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # ============================================
+  # Frontend Testing (Next.js)
+  # ============================================
+  frontend-test:
+    runs-on: ubuntu-latest
+    name: Frontend Tests & Build
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run ESLint
+        run: npm run lint
+        
+      - name: Run TypeScript check
+        run: npm run type-check
+        
+      - name: Run unit tests
+        run: npm run test -- --coverage --watchAll=false
+        
+      - name: Upload frontend coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/lcov.info
+          flags: frontend
+          name: frontend-coverage
+          fail_ci_if_error: true
+          
+      - name: Build Next.js application
+        run: npm run build
+        env:
+          NODE_ENV: production
+          
+      - name: Check bundle size
+        run: npm run analyze:size
+        
+      # Store build artifacts for deployment
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: .next
+          retention-days: 1
+
+  # ============================================
+  # Backend Testing (FastAPI)
+  # ============================================
+  backend-test:
+    runs-on: ubuntu-latest
+    name: Backend Tests & Build
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+          
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          
+      - name: Run code formatting check (Black)
+        run: black --check .
+        
+      - name: Run import sorting check (isort)
+        run: isort --check-only .
+        
+      - name: Run static type checking (mypy)
+        run: mypy app/
+        
+      - name: Run security checks (bandit)
+        run: bandit -r app/ -ll
+        
+      - name: Run unit and integration tests
+        run: pytest --cov=app --cov-report=xml --cov-report=term-missing
+        env:
+          DATABASE_URL: postgresql://test_user:test_pass@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379/0
+          ENVIRONMENT: testing
+          
+      - name: Upload backend coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+          flags: backend
+          name: backend-coverage
+          fail_ci_if_error: true
+          
+      - name: Build Docker image
+        run: |
+          docker build -t greenlink-api:${{ github.sha }} -f backend/Dockerfile .
+          
+      - name: Test Docker image
+        run: |
+          docker run --rm -d --name test-api -p 8000:8000 \
+            -e DATABASE_URL=sqlite:///./test.db \
+            greenlink-api:${{ github.sha }}
+          sleep 10
+          curl -f http://localhost:8000/health || exit 1
+          docker stop test-api
+
+  # ============================================================================
+  # Build Verification
+  # ============================================================================
+  build:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [lint-and-typecheck]
+    strategy:
+      matrix:
+        app: [investor-portal, issuer-portal, partner-portal, operator-portal, website]
+        
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-build-${{ matrix.app }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-build-${{ matrix.app }}-
+
+      - name: Build application
+        run: pnpm turbo build --filter=${{ matrix.app }}
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+          NEXT_PUBLIC_API_BASE_URL: https://api.greenlink.capital/v1
+          NEXT_PUBLIC_ENABLE_MOCKING: false
+
+      - name: Analyze bundle size
+        if: matrix.app != 'website'
+        run: |
+          cd apps/${{ matrix.app }}
+          npx @next/bundle-analyzer --analyze
+        continue-on-error: true
+
+      - name: Upload build artifacts
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.app }}-${{ github.sha }}
+          path: |
+            apps/${{ matrix.app }}/.next/
+            apps/${{ matrix.app }}/out/
+          retention-days: 7
+
+  # ============================================================================
+  # Security Scanning
+  # ============================================================================
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Dependency vulnerability scanning
+      - name: Run npm audit
+        run: pnpm audit --audit-level high
+        continue-on-error: true
+
+      # Advanced security scanning with Snyk
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=medium --file=pnpm-lock.yaml
+        continue-on-error: true
+
+      # CodeQL static analysis
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, typescript
+          queries: security-and-quality
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript"
+
+      # Secret scanning
+      - name: Secret scan with truffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  # ============================================================================
+  # Performance Testing
+  # ============================================================================
+  performance:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    needs: [build]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Lighthouse CI for performance auditing
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: './.lighthouserc.json'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      # Bundle size analysis
+      - name: Bundle size analysis
+        uses: andresz1/size-limit-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          package_manager: pnpm
+          script: size-limit
+
+  # ============================================================================
+  # E2E Testing (Playwright)
+  # ============================================================================
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    needs: [build]
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox, webkit]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps ${{ matrix.project }}
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: build-*-${{ github.sha }}
+          path: ./artifacts
+
+      - name: Setup test environment
+        run: |
+          # Copy build artifacts to appropriate locations
+          for app in investor-portal issuer-portal partner-portal operator-portal; do
+            if [ -d "./artifacts/build-$app-${{ github.sha }}" ]; then
+              cp -r "./artifacts/build-$app-${{ github.sha }}/.next" "apps/$app/"
+            fi
+          done
+
+      - name: Start applications for E2E testing
+        run: |
+          # Start all portal applications in background
+          pnpm turbo dev --parallel &
+          # Wait for applications to be ready
+          sleep 30
+        env:
+          NEXT_PUBLIC_ENABLE_MOCKING: true
+
+      - name: Run E2E tests
+        run: pnpm exec playwright test --project=${{ matrix.project }}
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-results-${{ matrix.project }}
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+  # ============================================================================
+  # Accessibility Testing
+  # ============================================================================
+  accessibility:
+    name: Accessibility Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    needs: [build]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run accessibility tests
+        run: pnpm turbo test:a11y
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+      - name: Upload accessibility reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accessibility-reports
+          path: |
+            apps/*/a11y-reports/
+            packages/*/a11y-reports/
+          retention-days: 7
+
+  # ============================================================================
+  # Final Status Check
+  # ============================================================================
+  ci-status:
+    name: CI Status Check
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [lint-and-typecheck, test, build, security-scan, performance, e2e, accessibility]
+    
+    steps:
+      - name: Check all jobs status
+        run: |
+          if [[ 
+            "${{ needs.lint-and-typecheck.result }}" == "success" && 
+            "${{ needs.test.result }}" == "success" && 
+            "${{ needs.build.result }}" == "success" &&
+            ("${{ needs.security-scan.result }}" == "success" || "${{ needs.security-scan.result }}" == "skipped") &&
+            ("${{ needs.performance.result }}" == "success" || "${{ needs.performance.result }}" == "skipped") &&
+            ("${{ needs.e2e.result }}" == "success" || "${{ needs.e2e.result }}" == "skipped") &&
+            ("${{ needs.accessibility.result }}" == "success" || "${{ needs.accessibility.result }}" == "skipped")
+          ]]; then
+            echo "✅ All CI checks passed!"
+            echo "BUILD_STATUS=success" >> $GITHUB_ENV
+          else
+            echo "❌ Some CI checks failed!"
+            echo "BUILD_STATUS=failure" >> $GITHUB_ENV
+            exit 1
+          fi
+
+      - name: Update commit status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = process.env.BUILD_STATUS === 'success' ? 'success' : 'failure';
+            const description = status === 'success' 
+              ? 'All CI checks passed - ready for deployment' 
+              : 'CI checks failed - review required';
+            
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: status,
+              description: description,
+              context: 'ci/greenlink-capital'
+            });
+
+  # ============================================================================
+  # Notification
+  # ============================================================================
+  notify:
+    name: Notify Team
+    runs-on: ubuntu-latest
+    if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    needs: [ci-status]
+    
+    steps:
+      - name: Send Slack notification
+        uses: 8398a7/action-slack@v3
+        if: always()
+        with:
+          status: ${{ needs.ci-status.result }}
+          channel: '#greenlink-dev'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+          custom_payload: |
+            {
+              attachments: [{
+                color: '${{ needs.ci-status.result }}' === 'success' ? 'good' : 'danger',
+                blocks: [{
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: `*GreenLink Capital CI Pipeline*\n*Status:* ${{ needs.ci-status.result === 'success' && '✅ Success' || '❌ Failed' }}\n*Branch:* ${process.env.AS_REF}\n*Commit:* <https://github.com/${process.env.AS_REPO}/commit/${process.env.AS_COMMIT}|${process.env.AS_COMMIT.slice(0, 8)}>\n*Author:* ${process.env.AS_AUTHOR}`
+                  }
+                }]
+              }]
+            }

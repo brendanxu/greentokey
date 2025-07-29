@@ -1,0 +1,41 @@
+
+> @greenlink/ui@1.0.0 build /Users/brendanxu/Desktop/projects/greentokey/greentokey-website/packages/ui
+> tsup src/index.ts --format cjs,esm --dts --external react
+
+CLI Building entry: src/index.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.0
+CLI Target: esnext
+CJS Build start
+ESM Build start
+CJS dist/index.js 283.74 KB
+CJS ⚡️ Build success in 39ms
+ESM dist/index.mjs 257.16 KB
+ESM ⚡️ Build success in 39ms
+DTS Build start
+src/components/molecules/SearchInput.tsx(44,18): error TS2320: Interface 'SearchInputProps' cannot simultaneously extend types 'Omit<InputProps, "onChange" | "leftElement" | "rightElement">' and 'VariantProps<(props?: (ConfigVariants<{ size: { sm: string; md: string; lg: string; }; }> & ClassProp) | undefined) => string>'.
+  Named property 'size' of types 'Omit<InputProps, "onChange" | "leftElement" | "rightElement">' and 'VariantProps<(props?: (ConfigVariants<{ size: { sm: string; md: string; lg: string; }; }> & ClassProp) | undefined) => string>' are not identical.
+src/components/molecules/SearchInput.tsx(105,31): error TS2554: Expected 1 arguments, but got 0.
+src/components/molecules/SearchInput.tsx(109,58): error TS2339: Property 'length' does not exist on type 'string | number | readonly string[]'.
+  Property 'length' does not exist on type 'number'.
+src/components/molecules/SearchInput.tsx(117,24): error TS2339: Property 'length' does not exist on type 'string | number | readonly string[]'.
+  Property 'length' does not exist on type 'number'.
+src/components/molecules/SearchInput.tsx(119,22): error TS2345: Argument of type 'string | number | readonly string[]' is not assignable to parameter of type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/components/molecules/SearchInput.tsx(183,35): error TS2339: Property 'length' does not exist on type 'string | number | readonly string[]'.
+  Property 'length' does not exist on type 'number'.
+src/components/molecules/SearchInput.tsx(184,24): error TS2345: Argument of type 'string | number | readonly string[]' is not assignable to parameter of type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/components/molecules/SearchInput.tsx(259,48): error TS2322: Type '"xs" | "sm" | "md" | "lg" | "xl" | null | undefined' is not assignable to type '"sm" | "md" | "lg" | null | undefined'.
+  Type '"xs"' is not assignable to type '"sm" | "md" | "lg" | null | undefined'.
+src/components/molecules/SearchInput.tsx(268,39): error TS2339: Property 'length' does not exist on type 'string | number | readonly string[]'.
+  Property 'length' does not exist on type 'number'.
+
+Error: error occurred in dts build
+    at Worker.<anonymous> (/Users/brendanxu/Desktop/projects/greentokey/greentokey-website/node_modules/.pnpm/tsup@8.5.0_jiti@1.21.7_postcss@8.5.6_typescript@5.8.3_yaml@2.8.0/node_modules/tsup/dist/index.js:1545:26)
+    at Worker.emit (node:events:518:28)
+    at MessagePort.<anonymous> (node:internal/worker:268:53)
+    at [nodejs.internal.kHybridDispatch] (node:internal/event_target:827:20)
+    at MessagePort.<anonymous> (node:internal/per_context/messageport:23:28)
+DTS Build error
+ ELIFECYCLE  Command failed with exit code 1.

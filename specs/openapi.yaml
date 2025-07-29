@@ -1,0 +1,1153 @@
+openapi: 3.0.3
+info:
+  title: GreenLink Capital API
+  version: 1.0.0
+  description: |
+    Enterprise-grade API for GreenLink Capital's green asset management platform.
+    Supports CCER (China Certified Emission Reduction) asset tokenization and management.
+  contact:
+    name: GreenLink Capital API Team
+    email: api@greenlink.capital
+  license:
+    name: Private License
+    url: https://greenlink.capital/license
+
+servers:
+  - url: https://api.greenlink.capital/v1
+    description: Production environment
+  - url: https://staging-api.greenlink.capital/v1
+    description: Staging environment
+  - url: http://localhost:3001/api/v1
+    description: Local development
+
+security:
+  - BearerAuth: []
+
+paths:
+  # Authentication Endpoints
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      description: Authenticate user with email/password and return JWT tokens
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+  /auth/mfa/verify:
+    post:
+      tags: [Authentication]
+      summary: Verify MFA token
+      description: Verify multi-factor authentication token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MFAVerifyRequest'
+      responses:
+        '200':
+          description: MFA verification successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      description: Refresh expired access token using refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+
+  # User Management
+  /users/profile:
+    get:
+      tags: [Users]
+      summary: Get current user profile
+      description: Retrieve current authenticated user's profile information
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    put:
+      tags: [Users]
+      summary: Update user profile
+      description: Update current user's profile information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+
+  # Asset Management
+  /assets:
+    get:
+      tags: [Assets]
+      summary: List assets
+      description: Retrieve paginated list of assets with filtering options
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/AssetStatus'
+        - name: asset_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/AssetType'
+        - name: issuer_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Assets retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetListResponse'
+
+    post:
+      tags: [Assets]
+      summary: Create new asset
+      description: Create a new asset for tokenization (issuer role required)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAssetRequest'
+      responses:
+        '201':
+          description: Asset created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /assets/{assetId}:
+    get:
+      tags: [Assets]
+      summary: Get asset by ID
+      description: Retrieve detailed information about a specific asset
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Asset retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags: [Assets]
+      summary: Update asset
+      description: Update asset information (owner or operator only)
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAssetRequest'
+      responses:
+        '200':
+          description: Asset updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetDetail'
+
+  /assets/{assetId}/tokenize:
+    post:
+      tags: [Assets]
+      summary: Tokenize asset
+      description: Start the tokenization process for an approved asset
+      parameters:
+        - name: assetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenizeAssetRequest'
+      responses:
+        '202':
+          description: Tokenization process started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenizationJob'
+
+  # Investment Management
+  /investments:
+    get:
+      tags: [Investments]
+      summary: List user investments
+      description: Retrieve user's investment portfolio
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Investments retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvestmentListResponse'
+
+    post:
+      tags: [Investments]
+      summary: Create investment
+      description: Make a new investment in an asset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInvestmentRequest'
+      responses:
+        '201':
+          description: Investment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Investment'
+
+  # Transaction Management
+  /transactions:
+    get:
+      tags: [Transactions]
+      summary: List transactions
+      description: Retrieve transaction history with filtering
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: asset_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: transaction_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/TransactionType'
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/TransactionStatus'
+      responses:
+        '200':
+          description: Transactions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionListResponse'
+
+  /transactions/{transactionId}:
+    get:
+      tags: [Transactions]
+      summary: Get transaction by ID
+      description: Retrieve detailed information about a specific transaction
+      parameters:
+        - name: transactionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Transaction retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionDetail'
+
+  # KYC Management (Operator only)
+  /kyc/submissions:
+    get:
+      tags: [KYC]
+      summary: List KYC submissions
+      description: Retrieve KYC submissions for review (operator role required)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/KYCStatus'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+      responses:
+        '200':
+          description: KYC submissions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KYCSubmissionListResponse'
+
+  /kyc/submissions/{submissionId}/approve:
+    post:
+      tags: [KYC]
+      summary: Approve KYC submission
+      description: Approve a KYC submission (operator role required)
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KYCApprovalRequest'
+      responses:
+        '200':
+          description: KYC submission approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KYCSubmission'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Authentication Schemas
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "investor@example.com"
+        password:
+          type: string
+          format: password
+          minLength: 8
+        remember_me:
+          type: boolean
+          default: false
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            access_token:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            refresh_token:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            expires_in:
+              type: integer
+              example: 3600
+            token_type:
+              type: string
+              example: "Bearer"
+            user:
+              $ref: '#/components/schemas/UserProfile'
+            requires_mfa:
+              type: boolean
+              example: false
+        metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+
+    MFAVerifyRequest:
+      type: object
+      required: [mfa_token, verification_code]
+      properties:
+        mfa_token:
+          type: string
+          description: Temporary MFA token from login response
+        verification_code:
+          type: string
+          example: "123456"
+          minLength: 6
+          maxLength: 6
+
+    RefreshTokenRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token:
+          type: string
+
+    TokenResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            access_token:
+              type: string
+            refresh_token:
+              type: string
+            expires_in:
+              type: integer
+
+    # User Schemas
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        email:
+          type: string
+          format: email
+        first_name:
+          type: string
+          example: "John"
+        last_name:
+          type: string
+          example: "Doe"
+        role:
+          $ref: '#/components/schemas/UserRole'
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        kyc_level:
+          type: integer
+          minimum: 0
+          maximum: 3
+          example: 2
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        last_login_at:
+          type: string
+          format: date-time
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        phone:
+          type: string
+          pattern: '^\+[1-9]\d{10,14}$'
+
+    UserRole:
+      type: string
+      enum: [investor, issuer, partner, operator]
+      example: "investor"
+
+    UserStatus:
+      type: string
+      enum: [pending, active, suspended, deactivated]
+      example: "active"
+
+    # Asset Schemas
+    Asset:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        issuer_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "CCER Carbon Credits 2024"
+        symbol:
+          type: string
+          example: "CCER24"
+          maxLength: 10
+        description:
+          type: string
+        asset_type:
+          $ref: '#/components/schemas/AssetType'
+        total_supply:
+          type: number
+          format: decimal
+          example: 1000000
+        circulating_supply:
+          type: number
+          format: decimal
+          example: 750000
+        status:
+          $ref: '#/components/schemas/AssetStatus'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AssetDetail:
+      allOf:
+        - $ref: '#/components/schemas/Asset'
+        - type: object
+          properties:
+            ccer_project_id:
+              type: string
+              example: "CCER-CN-2024-123456"
+            verification_standard:
+              type: string
+              example: "VCS"
+            vintage_year:
+              type: integer
+              example: 2024
+            geography:
+              type: string
+              example: "China"
+            contract_address:
+              type: string
+              example: "0x742d35cc6634c0532925a3b8d0b0b6e0f21b4a2e"
+            blockchain_network:
+              type: string
+              example: "Ethereum"
+            token_standard:
+              type: string
+              example: "ERC-20"
+            documents:
+              type: array
+              items:
+                $ref: '#/components/schemas/AssetDocument'
+            metrics:
+              $ref: '#/components/schemas/AssetMetrics'
+
+    AssetDocument:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        document_type:
+          type: string
+          enum: [certificate, verification_report, project_description, monitoring_report]
+        file_url:
+          type: string
+          format: uri
+        file_size:
+          type: integer
+        uploaded_at:
+          type: string
+          format: date-time
+
+    AssetMetrics:
+      type: object
+      properties:
+        current_price:
+          type: number
+          format: decimal
+        market_cap:
+          type: number
+          format: decimal
+        trading_volume_24h:
+          type: number
+          format: decimal
+        price_change_24h:
+          type: number
+          format: decimal
+        price_change_percentage_24h:
+          type: number
+          format: decimal
+
+    CreateAssetRequest:
+      type: object
+      required: [name, symbol, asset_type, total_supply, ccer_project_id]
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        symbol:
+          type: string
+          maxLength: 10
+          pattern: '^[A-Z0-9]+$'
+        description:
+          type: string
+          maxLength: 2000
+        asset_type:
+          $ref: '#/components/schemas/AssetType'
+        total_supply:
+          type: number
+          format: decimal
+          minimum: 1
+        ccer_project_id:
+          type: string
+          pattern: '^CCER-[A-Z]{2}-\d{4}-\d{6}$'
+        verification_standard:
+          type: string
+        vintage_year:
+          type: integer
+          minimum: 2020
+        geography:
+          type: string
+
+    UpdateAssetRequest:
+      type: object
+      properties:
+        description:
+          type: string
+          maxLength: 2000
+        verification_standard:
+          type: string
+
+    TokenizeAssetRequest:
+      type: object
+      required: [blockchain_network, token_standard]
+      properties:
+        blockchain_network:
+          type: string
+          enum: [ethereum, polygon, bsc]
+        token_standard:
+          type: string
+          enum: [ERC-20, ERC-1155]
+        initial_price:
+          type: number
+          format: decimal
+          minimum: 0
+
+    TokenizationJob:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        asset_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, in_progress, completed, failed]
+        blockchain_network:
+          type: string
+        estimated_completion:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+
+    AssetType:
+      type: string
+      enum: [ccer, renewable_energy, forestry, carbon_offset]
+      example: "ccer"
+
+    AssetStatus:
+      type: string
+      enum: [draft, pending_review, approved, rejected, tokenized, suspended]
+      example: "approved"
+
+    AssetListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Asset'
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/ResponseMetadata'
+            - $ref: '#/components/schemas/PaginationMetadata'
+
+    # Investment Schemas
+    Investment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        investor_id:
+          type: string
+          format: uuid
+        asset_id:
+          type: string
+          format: uuid
+        quantity:
+          type: number
+          format: decimal
+        price_per_unit:
+          type: number
+          format: decimal
+        total_value:
+          type: number
+          format: decimal
+        invested_at:
+          type: string
+          format: date-time
+        current_value:
+          type: number
+          format: decimal
+        profit_loss:
+          type: number
+          format: decimal
+        profit_loss_percentage:
+          type: number
+          format: decimal
+        asset:
+          $ref: '#/components/schemas/Asset'
+
+    CreateInvestmentRequest:
+      type: object
+      required: [asset_id, quantity]
+      properties:
+        asset_id:
+          type: string
+          format: uuid
+        quantity:
+          type: number
+          format: decimal
+          minimum: 0.000001
+        max_price_per_unit:
+          type: number
+          format: decimal
+          minimum: 0
+
+    InvestmentListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Investment'
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/ResponseMetadata'
+            - $ref: '#/components/schemas/PaginationMetadata'
+
+    # Transaction Schemas
+    TransactionDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        asset_id:
+          type: string
+          format: uuid
+        from_user_id:
+          type: string
+          format: uuid
+        to_user_id:
+          type: string
+          format: uuid
+        transaction_type:
+          $ref: '#/components/schemas/TransactionType'
+        quantity:
+          type: number
+          format: decimal
+        price_per_unit:
+          type: number
+          format: decimal
+        total_value:
+          type: number
+          format: decimal
+        blockchain_tx_hash:
+          type: string
+          example: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+        block_number:
+          type: integer
+        gas_used:
+          type: integer
+        gas_price:
+          type: number
+          format: decimal
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+        created_at:
+          type: string
+          format: date-time
+        settled_at:
+          type: string
+          format: date-time
+        asset:
+          $ref: '#/components/schemas/Asset'
+
+    TransactionType:
+      type: string
+      enum: [buy, sell, transfer, mint, burn]
+      example: "buy"
+
+    TransactionStatus:
+      type: string
+      enum: [pending, confirmed, failed, cancelled]
+      example: "confirmed"
+
+    TransactionListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionDetail'
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/ResponseMetadata'
+            - $ref: '#/components/schemas/PaginationMetadata'
+
+    # KYC Schemas
+    KYCSubmission:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/KYCStatus'
+        kyc_level:
+          type: integer
+          minimum: 1
+          maximum: 3
+        submitted_at:
+          type: string
+          format: date-time
+        reviewed_at:
+          type: string
+          format: date-time
+        reviewer_id:
+          type: string
+          format: uuid
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/KYCDocument'
+        notes:
+          type: string
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    KYCDocument:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        document_type:
+          type: string
+          enum: [passport, national_id, utility_bill, bank_statement, company_registration]
+        file_url:
+          type: string
+          format: uri
+        uploaded_at:
+          type: string
+          format: date-time
+
+    KYCApprovalRequest:
+      type: object
+      required: [approved, kyc_level]
+      properties:
+        approved:
+          type: boolean
+        kyc_level:
+          type: integer
+          minimum: 1
+          maximum: 3
+        notes:
+          type: string
+          maxLength: 1000
+
+    KYCStatus:
+      type: string
+      enum: [pending, under_review, approved, rejected, expired]
+      example: "under_review"
+
+    KYCSubmissionListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/KYCSubmission'
+        metadata:
+          allOf:
+            - $ref: '#/components/schemas/ResponseMetadata'
+            - $ref: '#/components/schemas/PaginationMetadata'
+
+    # Common Schemas
+    ResponseMetadata:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:30:00Z"
+        request_id:
+          type: string
+          format: uuid
+          example: "req_789"
+
+    PaginationMetadata:
+      type: object
+      properties:
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              example: 1
+            limit:
+              type: integer
+              example: 20
+            total:
+              type: integer
+              example: 150
+            total_pages:
+              type: integer
+              example: 8
+            has_next:
+              type: boolean
+              example: true
+            has_previous:
+              type: boolean
+              example: false
+
+    APIError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              example: "Validation failed"
+            details:
+              type: object
+              additionalProperties: true
+        metadata:
+          $ref: '#/components/schemas/ResponseMetadata'
+
+  responses:
+    BadRequest:
+      description: Bad request - Invalid input parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+          example:
+            success: false
+            error:
+              code: "VALIDATION_ERROR"
+              message: "Invalid input parameters"
+              details:
+                email: "Invalid email format"
+            metadata:
+              timestamp: "2024-01-15T10:30:00Z"
+              request_id: "req_789"
+
+    Unauthorized:
+      description: Unauthorized - Invalid or missing authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+          example:
+            success: false
+            error:
+              code: "UNAUTHORIZED"
+              message: "Authentication required"
+            metadata:
+              timestamp: "2024-01-15T10:30:00Z"
+              request_id: "req_789"
+
+    Forbidden:
+      description: Forbidden - Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+          example:
+            success: false
+            error:
+              code: "FORBIDDEN"
+              message: "Insufficient permissions"
+            metadata:
+              timestamp: "2024-01-15T10:30:00Z"
+              request_id: "req_789"
+
+    NotFound:
+      description: Not found - Resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+          example:
+            success: false
+            error:
+              code: "NOT_FOUND"
+              message: "Resource not found"
+            metadata:
+              timestamp: "2024-01-15T10:30:00Z"
+              request_id: "req_789"
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/APIError'
+          example:
+            success: false
+            error:
+              code: "RATE_LIMIT_EXCEEDED"
+              message: "Too many requests"
+            metadata:
+              timestamp: "2024-01-15T10:30:00Z"
+              request_id: "req_789"
+
+tags:
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Users
+    description: User profile management
+  - name: Assets
+    description: Asset management and tokenization
+  - name: Investments
+    description: Investment portfolio management
+  - name: Transactions
+    description: Transaction history and management
+  - name: KYC
+    description: Know Your Customer verification

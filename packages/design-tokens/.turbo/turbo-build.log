@@ -1,0 +1,35 @@
+
+> @greenlink/design-tokens@1.0.0 build /Users/brendanxu/Desktop/projects/greentokey/greentokey-website/packages/design-tokens
+> tsup src/index.ts src/tokens.ts src/themes.ts src/tailwind.ts --format cjs,esm --dts
+
+CLI Building entry: src/index.ts, src/tailwind.ts, src/themes.ts, src/tokens.ts
+CLI Using tsconfig: tsconfig.json
+CLI tsup v8.5.0
+CLI Target: esnext
+CJS Build start
+ESM Build start
+ESM dist/index.mjs          2.14 KB
+ESM dist/tailwind.mjs       813.00 B
+ESM dist/tokens.mjs         301.00 B
+ESM dist/themes.mjs         466.00 B
+ESM dist/chunk-HFXEPOY3.mjs 7.63 KB
+ESM dist/chunk-ERW7JYLP.mjs 8.31 KB
+ESM dist/chunk-IQ3GZINU.mjs 7.43 KB
+ESM ⚡️ Build success in 20ms
+CJS dist/index.js    26.33 KB
+CJS dist/tokens.js   8.84 KB
+CJS dist/themes.js   16.20 KB
+CJS dist/tailwind.js 23.83 KB
+CJS ⚡️ Build success in 20ms
+DTS Build start
+DTS ⚡️ Build success in 1372ms
+DTS dist/index.d.ts           1.81 KB
+DTS dist/tailwind.d.ts        1.57 KB
+DTS dist/themes.d.ts          1008.00 B
+DTS dist/tokens.d.ts          1.82 KB
+DTS dist/types-tCHKcDmR.d.ts  4.26 KB
+DTS dist/index.d.mts          1.82 KB
+DTS dist/tailwind.d.mts       1.57 KB
+DTS dist/themes.d.mts         1009.00 B
+DTS dist/tokens.d.mts         1.82 KB
+DTS dist/types-tCHKcDmR.d.mts 4.26 KB

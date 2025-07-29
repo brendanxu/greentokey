@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border-primary;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-bg-primary text-text-primary font-manrope antialiased;
+  }
+
+  /* ADDX 排版层级 - 精确实现 */
+  h1 {
+    @apply text-h1-mobile md:text-h1-desktop font-bold text-text-primary;
+  }
+
+  h2 {
+    @apply text-h2-mobile md:text-h2-desktop font-bold text-text-primary;
+  }
+
+  h3 {
+    @apply text-h3-mobile md:text-h3-desktop font-semibold text-text-primary;
+  }
+
+  h4 {
+    @apply text-h4-mobile md:text-h4-desktop font-semibold text-text-primary;
+  }
+
+  p {
+    @apply text-body-md text-text-secondary;
+  }
+
+  /* 可访问性焦点状态 - WCAG 2.1 AA */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-blue;
+  }
+
+  /* 链接默认样式 */
+  a {
+    @apply text-link font-medium text-text-secondary hover:text-primary-blue transition-colors duration-300;
+  }
+
+  /* 按钮重置 */
+  button {
+    @apply font-manrope;
+  }
+}
+
+@layer components {
+  /* ADDX 布局系统 */
+  .container {
+    @apply max-w-container mx-auto px-6;
+  }
+
+  /* ADDX 按钮组件 - 精确规格 */
+  .btn-primary {
+    @apply bg-primary-blue text-text-on-dark text-button py-3 px-6 rounded-lg;
+    @apply transition-all duration-300 ease-in-out;
+    @apply hover:brightness-110 hover:scale-103 hover:shadow-button-hover;
+    @apply active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-blue;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent text-text-primary text-button py-3 px-6 rounded-lg;
+    @apply border border-border-primary transition-all duration-300 ease-in-out;
+    @apply hover:bg-bg-subtle hover:text-primary-blue hover:border-primary-blue;
+    @apply active:bg-blue-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-blue;
+  }
+
+  .btn-tertiary {
+    @apply bg-transparent text-text-secondary text-button;
+    @apply hover:text-primary-blue hover:underline transition-colors duration-300;
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-blue;
+  }
+
+  /* ADDX 卡片组件 */
+  .card-feature {
+    @apply bg-bg-primary p-6 rounded-xl border border-transparent;
+    @apply transition-all duration-300 hover:-translate-y-1;
+    @apply hover:border-border-primary hover:shadow-card-hover;
+  }
+
+  .card-testimonial {
+    @apply bg-bg-subtle p-8 rounded-2xl;
+  }
+
+  /* ADDX 导航系统 */
+  .nav-header {
+    @apply sticky top-0 z-50 transition-all duration-300 ease-in-out;
+  }
+
+  .nav-header.scrolled {
+    @apply bg-white bg-opacity-80 backdrop-blur-header shadow-header-scroll;
+  }
+
+  .nav-dropdown {
+    @apply bg-bg-primary rounded-xl shadow-dropdown p-4;
+  }
+
+  /* ADDX 区块间距 */
+  .section-spacing {
+    @apply py-16 md:py-24 lg:py-32;
+  }
+
+  /* ADDX 文本样式 */
+  .text-hero {
+    @apply text-h1-mobile md:text-h1-desktop font-bold text-text-primary;
+  }
+
+  .text-lead {
+    @apply text-body-lg-mobile md:text-body-lg-desktop text-text-secondary;
+  }
+
+  /* 绿色金融主题渐变 */
+  .gradient-green {
+    @apply bg-gradient-to-r from-green-primary to-green-dark bg-clip-text text-transparent;
+  }
+
+  /* 可访问性辅助类 */
+  .sr-only {
+    @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+    clip: rect(0, 0, 0, 0);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-float-delay-1 {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+
+  .animate-float-delay-2 {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 4s;
+  }
+
+  .bg-grid {
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .bg-radial-gradient {
+    background: radial-gradient(circle at 50% 50%, rgba(0, 212, 170, 0.1) 0%, transparent 50%);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-bg-subtle;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-border-primary rounded-full hover:bg-text-secondary;
+}

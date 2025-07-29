@@ -1,0 +1,6 @@
+packages:
+  # Portal Applications
+  - "apps/*"
+  
+  # Shared Packages
+  - "packages/*"

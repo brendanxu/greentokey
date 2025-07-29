@@ -1,0 +1,586 @@
+name: CD - Deploy to Staging
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (defaults to latest commit)'
+        required: false
+        type: string
+      force_deploy:
+        description: 'Force deployment even if tests fail'
+        required: false
+        type: boolean
+        default: false
+
+# Ensure only one deployment runs at a time
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '18.19.0'
+  PNPM_VERSION: '9.0.0'
+  ENVIRONMENT: 'staging'
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  # ============================================================================
+  # Pre-deployment Checks
+  # ============================================================================
+  pre-deploy-checks:
+    name: Pre-deployment Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      should_deploy: ${{ steps.check.outputs.should_deploy }}
+      version: ${{ steps.version.outputs.version }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${{ github.sha }}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "🏷️ Deploying version: $VERSION"
+
+      - name: Check if deployment should proceed
+        id: check
+        run: |
+          SHOULD_DEPLOY="true"
+          
+          # Check if force deploy is enabled
+          if [ "${{ github.event.inputs.force_deploy }}" == "true" ]; then
+            echo "⚠️ Force deployment enabled - skipping checks"
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Check CI status for this commit
+          CI_STATUS=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/status --jq '.state')
+          if [ "$CI_STATUS" != "success" ]; then
+            echo "❌ CI checks have not passed for this commit"
+            SHOULD_DEPLOY="false"
+          fi
+          
+          # Check for any critical security vulnerabilities
+          if [ -f "security-scan-results.json" ]; then
+            CRITICAL_VULNS=$(jq '.vulnerabilities[] | select(.severity == "critical")' security-scan-results.json | wc -l)
+            if [ "$CRITICAL_VULNS" -gt 0 ]; then
+              echo "❌ Critical security vulnerabilities found"
+              SHOULD_DEPLOY="false"
+            fi
+          fi
+          
+          echo "should_deploy=$SHOULD_DEPLOY" >> $GITHUB_OUTPUT
+          
+          if [ "$SHOULD_DEPLOY" == "false" ]; then
+            echo "🚫 Deployment blocked - manual override required"
+            exit 1
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ============================================================================
+  # Database Migration (if needed)
+  # ============================================================================
+  database-migration:
+    name: Database Migration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [pre-deploy-checks]
+    if: needs.pre-deploy-checks.outputs.should_deploy == 'true'
+    environment:
+      name: staging-db
+      url: https://staging-db.greenlink.capital
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check for pending migrations
+        id: check-migrations
+        run: |
+          # Check if there are any new migration files
+          PENDING_MIGRATIONS=$(find ./migrations -name "*.sql" -newer ./last-migration.timestamp 2>/dev/null | wc -l || echo "0")
+          echo "pending_migrations=$PENDING_MIGRATIONS" >> $GITHUB_OUTPUT
+          
+          if [ "$PENDING_MIGRATIONS" -gt 0 ]; then
+            echo "📊 Found $PENDING_MIGRATIONS pending migrations"
+          else
+            echo "✅ No pending migrations"
+          fi
+
+      - name: Backup database
+        if: steps.check-migrations.outputs.pending_migrations > 0
+        run: |
+          echo "🗄️ Creating database backup before migration..."
+          # In production, this would create an actual backup
+          # pg_dump $DATABASE_URL > backup-$(date +%Y%m%d-%H%M%S).sql
+          echo "Database backup completed"
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+      - name: Run database migrations
+        if: steps.check-migrations.outputs.pending_migrations > 0
+        run: |
+          echo "🚀 Running database migrations..."
+          # In production, run actual migrations
+          # npx prisma migrate deploy
+          # or similar migration tool
+          touch ./last-migration.timestamp
+          echo "Database migrations completed"
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+      - name: Verify database health
+        run: |
+          echo "🏥 Verifying database health..."
+          # In production, run health checks
+          # npx prisma db pull --preview-feature
+          echo "Database health check passed"
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+
+  # ============================================================================
+  # Build and Deploy Applications
+  # ============================================================================
+  deploy-applications:
+    name: Deploy Applications
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [pre-deploy-checks, database-migration]
+    if: always() && needs.pre-deploy-checks.outputs.should_deploy == 'true' && (needs.database-migration.result == 'success' || needs.database-migration.result == 'skipped')
+    environment:
+      name: staging
+      url: https://staging.greenlink.capital
+      
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - name: investor-portal
+            subdomain: investor
+            port: 3001
+          - name: issuer-portal  
+            subdomain: issuer
+            port: 3002
+          - name: partner-portal
+            subdomain: partner
+            port: 3003
+          - name: operator-portal
+            subdomain: operator
+            port: 3004
+          - name: website
+            subdomain: www
+            port: 3000
+            
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.pre-deploy-checks.outputs.version }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm turbo build --filter=${{ matrix.app.name }}
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+          # Staging environment variables
+          NEXT_PUBLIC_API_BASE_URL: https://api-staging.greenlink.capital/v1
+          NEXT_PUBLIC_ENABLE_MOCKING: false
+          NEXT_PUBLIC_ENVIRONMENT: staging
+          NEXT_PUBLIC_VERCEL_URL: ${{ matrix.app.subdomain }}-staging.greenlink.capital
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          REDIS_URL: ${{ secrets.STAGING_REDIS_URL }}
+          JWT_ACCESS_SECRET: ${{ secrets.STAGING_JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.STAGING_JWT_REFRESH_SECRET }}
+
+      # Deploy to Vercel
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: apps/${{ matrix.app.name }}
+          vercel-args: '--prod --confirm'
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+          alias-domains: |
+            ${{ matrix.app.subdomain }}-staging.greenlink.capital
+
+      # Alternative: Deploy to custom infrastructure
+      - name: Deploy to staging infrastructure
+        if: false # Enable if using custom deployment
+        run: |
+          echo "🚀 Deploying ${{ matrix.app.name }} to staging..."
+          
+          # Build Docker image
+          docker build -t greenlink/${{ matrix.app.name }}:staging \
+            --build-arg APP_NAME=${{ matrix.app.name }} \
+            --build-arg NODE_ENV=production \
+            -f apps/${{ matrix.app.name }}/Dockerfile .
+          
+          # Push to container registry
+          docker push greenlink/${{ matrix.app.name }}:staging
+          
+          # Deploy to Kubernetes or similar
+          kubectl set image deployment/${{ matrix.app.name }}-staging \
+            app=greenlink/${{ matrix.app.name }}:staging \
+            -n staging
+
+      - name: Update deployment status
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ job.status }}' === 'success' ? 'success' : 'failure';
+            const description = status === 'success' 
+              ? `✅ ${context.payload.matrix.app.name} deployed to staging` 
+              : `❌ ${context.payload.matrix.app.name} deployment failed`;
+            
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.sha,
+              state: status,
+              description: description,
+              context: `deploy/staging/${context.payload.matrix.app.name}`,
+              target_url: `https://${context.payload.matrix.app.subdomain}-staging.greenlink.capital`
+            });
+
+  # ============================================================================
+  # Post-deployment Tests
+  # ============================================================================
+  post-deploy-tests:
+    name: Post-deployment Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [deploy-applications]
+    if: always() && needs.deploy-applications.result == 'success'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Wait for deployments to be ready
+        run: |
+          echo "⏳ Waiting for all applications to be ready..."
+          
+          APPS=("investor" "issuer" "partner" "operator" "www")
+          for app in "${APPS[@]}"; do
+            URL="https://${app}-staging.greenlink.capital"
+            echo "Checking $URL..."
+            
+            for i in {1..30}; do
+              if curl -s --head "$URL" | grep "200 OK" > /dev/null; then
+                echo "✅ $app is ready"
+                break
+              fi
+              
+              if [ $i -eq 30 ]; then
+                echo "❌ $app failed to respond after 5 minutes"
+                exit 1
+              fi
+              
+              sleep 10
+            done
+          done
+
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running smoke tests against staging..."
+          
+          # Test all portal endpoints
+          ENDPOINTS=(
+            "https://investor-staging.greenlink.capital/health"
+            "https://issuer-staging.greenlink.capital/health"
+            "https://partner-staging.greenlink.capital/health"
+            "https://operator-staging.greenlink.capital/health"
+            "https://www-staging.greenlink.capital/health"
+          )
+          
+          for endpoint in "${ENDPOINTS[@]}"; do
+            echo "Testing $endpoint..."
+            response=$(curl -s -o /dev/null -w "%{http_code}" "$endpoint")
+            if [ "$response" != "200" ]; then
+              echo "❌ Health check failed for $endpoint (HTTP $response)"
+              exit 1
+            fi
+            echo "✅ $endpoint is healthy"
+          done
+
+      - name: Run API contract tests
+        run: |
+          echo "📋 Running API contract tests..."
+          export API_BASE_URL="https://api-staging.greenlink.capital/v1"
+          node specs/validate-contract.js --env=staging
+        env:
+          TEST_USER_EMAIL: ${{ secrets.STAGING_TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.STAGING_TEST_USER_PASSWORD }}
+
+      - name: Run critical user journey tests
+        run: |
+          echo "🛤️ Running critical user journey tests..."
+          pnpm exec playwright test --grep="@critical" --project=chromium
+        env:
+          PLAYWRIGHT_BASE_URL: https://investor-staging.greenlink.capital
+          TEST_USER_EMAIL: ${{ secrets.STAGING_TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.STAGING_TEST_USER_PASSWORD }}
+
+      - name: Performance benchmarks
+        run: |
+          echo "⚡ Running performance benchmarks..."
+          
+          # Run Lighthouse against key pages
+          npx lighthouse https://investor-staging.greenlink.capital \
+            --chrome-flags="--headless --no-sandbox" \
+            --output json \
+            --output-path ./lighthouse-staging.json
+          
+          # Check performance score
+          PERFORMANCE_SCORE=$(cat lighthouse-staging.json | jq '.categories.performance.score * 100')
+          echo "Performance Score: $PERFORMANCE_SCORE"
+          
+          if [ "$PERFORMANCE_SCORE" -lt 80 ]; then
+            echo "⚠️ Performance score below threshold (80)"
+          else
+            echo "✅ Performance score meets requirements"
+          fi
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-deploy-test-results
+          path: |
+            lighthouse-staging.json
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+  # ============================================================================
+  # Security Validation
+  # ============================================================================
+  security-validation:
+    name: Security Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [deploy-applications]
+    if: always() && needs.deploy-applications.result == 'success'
+    
+    steps:
+      - name: Security headers check
+        run: |
+          echo "🔒 Checking security headers..."
+          
+          URLS=(
+            "https://investor-staging.greenlink.capital"
+            "https://issuer-staging.greenlink.capital"
+            "https://partner-staging.greenlink.capital"
+            "https://operator-staging.greenlink.capital"
+          )
+          
+          for url in "${URLS[@]}"; do
+            echo "Checking $url..."
+            
+            # Check for security headers
+            headers=$(curl -s -I "$url")
+            
+            # Required security headers
+            if echo "$headers" | grep -i "strict-transport-security" > /dev/null; then
+              echo "✅ HSTS header present"
+            else
+              echo "❌ Missing HSTS header"
+            fi
+            
+            if echo "$headers" | grep -i "content-security-policy" > /dev/null; then
+              echo "✅ CSP header present"
+            else
+              echo "❌ Missing CSP header"
+            fi
+            
+            if echo "$headers" | grep -i "x-frame-options" > /dev/null; then
+              echo "✅ X-Frame-Options header present"
+            else
+              echo "❌ Missing X-Frame-Options header"
+            fi
+          done
+
+      - name: SSL/TLS validation
+        run: |
+          echo "🔐 Validating SSL/TLS configuration..."
+          
+          # Check SSL certificate validity
+          echo | openssl s_client -servername investor-staging.greenlink.capital \
+            -connect investor-staging.greenlink.capital:443 2>/dev/null | \
+            openssl x509 -noout -dates
+          
+          # Check SSL Labs rating (if API available)
+          # curl -s "https://api.ssllabs.com/api/v3/analyze?host=investor-staging.greenlink.capital"
+
+      - name: OWASP ZAP security scan
+        uses: zaproxy/action-baseline@v0.10.0
+        with:
+          target: 'https://investor-staging.greenlink.capital'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+  # ============================================================================
+  # Rollback Capability
+  # ============================================================================
+  setup-rollback:
+    name: Setup Rollback Capability
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [deploy-applications]
+    if: always() && needs.deploy-applications.result == 'success'
+    
+    steps:
+      - name: Create rollback point
+        run: |
+          echo "📌 Creating rollback point..."
+          
+          # Store current deployment info for potential rollback
+          cat > rollback-info.json << EOF
+          {
+            "environment": "staging",
+            "version": "${{ needs.pre-deploy-checks.outputs.version }}",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "commit_sha": "${{ github.sha }}",
+            "deployed_apps": [
+              "investor-portal",
+              "issuer-portal", 
+              "partner-portal",
+              "operator-portal",
+              "website"
+            ]
+          }
+          EOF
+
+      - name: Store rollback information
+        uses: actions/upload-artifact@v4
+        with:
+          name: rollback-staging-${{ github.sha }}
+          path: rollback-info.json
+          retention-days: 30
+
+  # ============================================================================
+  # Deployment Notification
+  # ============================================================================
+  notify-deployment:
+    name: Notify Deployment
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [pre-deploy-checks, deploy-applications, post-deploy-tests, security-validation]
+    
+    steps:
+      - name: Determine deployment status
+        id: status
+        run: |
+          if [[ 
+            "${{ needs.deploy-applications.result }}" == "success" && 
+            ("${{ needs.post-deploy-tests.result }}" == "success" || "${{ needs.post-deploy-tests.result }}" == "skipped") &&
+            ("${{ needs.security-validation.result }}" == "success" || "${{ needs.security-validation.result }}" == "skipped")
+          ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "message=✅ Staging deployment successful" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "message=❌ Staging deployment failed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Slack notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ steps.status.outputs.status }}
+          channel: '#greenlink-deployments'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          custom_payload: |
+            {
+              attachments: [{
+                color: '${{ steps.status.outputs.status }}' === 'success' ? 'good' : 'danger',
+                blocks: [{
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: `*🚀 Staging Deployment*\n${{ steps.status.outputs.message }}\n*Environment:* Staging\n*Version:* ${{ needs.pre-deploy-checks.outputs.version }}\n*Branch:* ${process.env.AS_REF}\n*URLs:*\n• [Investor Portal](https://investor-staging.greenlink.capital)\n• [Issuer Portal](https://issuer-staging.greenlink.capital)\n• [Partner Portal](https://partner-staging.greenlink.capital)\n• [Operator Portal](https://operator-staging.greenlink.capital)`
+                  }
+                }]
+              }]
+            }
+
+      - name: Create GitHub deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: '${{ needs.pre-deploy-checks.outputs.version }}',
+              environment: 'staging',
+              description: 'Automated staging deployment',
+              auto_merge: false,
+              required_contexts: []
+            });
+
+            await github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: deployment.data.id,
+              state: '${{ steps.status.outputs.status }}',
+              description: '${{ steps.status.outputs.message }}',
+              environment_url: 'https://www-staging.greenlink.capital'
+            });

@@ -1,0 +1,98 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "@typescript-eslint/recommended",
+    "plugin:security/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "security"
+  ],
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  },
+  "rules": {
+    // Security-focused rules
+    "security/detect-object-injection": "error",
+    "security/detect-non-literal-fs-filename": "error",
+    "security/detect-non-literal-regexp": "error",
+    "security/detect-non-literal-require": "error",
+    "security/detect-possible-timing-attacks": "error",
+    "security/detect-pseudoRandomBytes": "error",
+    "security/detect-unsafe-regex": "error",
+    "security/detect-buffer-noassert": "error",
+    "security/detect-child-process": "error",
+    "security/detect-disable-mustache-escape": "error",
+    "security/detect-eval-with-expression": "error",
+    "security/detect-new-buffer": "error",
+    "security/detect-no-csrf-before-method-override": "error",
+    
+    // Custom security rules for GreenLink Capital
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error",
+    "no-script-url": "error",
+    "no-alert": "error",
+    "no-console": ["warn", { 
+      "allow": ["warn", "error", "info"] 
+    }],
+    
+    // Authentication and authorization
+    "no-unused-vars": ["error", { 
+      "varsIgnorePattern": "(password|secret|token|key)",
+      "argsIgnorePattern": "^_"
+    }],
+    
+    // Prevent sensitive data exposure
+    "no-debugger": "error",
+    "no-unreachable": "error",
+    
+    // XSS prevention
+    "react/no-danger": "off",
+    "react/no-danger-with-children": "off",
+    
+    // SQL injection prevention (for any dynamic queries)
+    "security/detect-sql-injection": "off" // Not applicable for our current stack
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.{js,ts,jsx,tsx}", "**/*.spec.{js,ts,jsx,tsx}"],
+      "rules": {
+        "security/detect-non-literal-fs-filename": "off",
+        "security/detect-child-process": "off",
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["lib/auth/**/*.{js,ts}"],
+      "rules": {
+        // Stricter rules for authentication code
+        "security/detect-possible-timing-attacks": "error",
+        "security/detect-pseudoRandomBytes": "error",
+        "no-console": "error"
+      }
+    },
+    {
+      "files": ["packages/api-client/**/*.{js,ts}"],
+      "rules": {
+        // API client specific rules
+        "security/detect-non-literal-require": "off"
+      }
+    }
+  ],
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  }
+}

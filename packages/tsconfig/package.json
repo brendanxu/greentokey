@@ -1,0 +1,11 @@
+{
+  "name": "@greenlink/tsconfig",
+  "version": "1.0.0",
+  "description": "Shared TypeScript configuration for GreenLink Capital monorepo",
+  "main": "./index.js",
+  "files": [
+    "base.json",
+    "nextjs.json",
+    "react-library.json"
+  ]
+}

@@ -1,0 +1,193 @@
+/*!
+ * GreenLink Capital Design System - Operator Console
+ * Theme: operator
+ * Portal: operator
+ * Version: 1.0.0
+ * Generated: 2025-07-28T22:58:28.378Z
+ */
+
+/* Theme-specific CSS custom properties */
+:root,
+[data-theme="operator"],
+.theme-operator {
+  --gl-color-primary-primary: #F59E0B;
+  --gl-color-primary-secondary: #FBBF24;
+  --gl-color-primary-tertiary: #FCD34D;
+  --gl-color-primary-light: #FEF3C7;
+  --gl-color-primary-dark: #D97706;
+  --gl-color-secondary-primary: #00D4AA;
+  --gl-color-secondary-secondary: #33E1BF;
+  --gl-color-secondary-tertiary: #66E8CF;
+  --gl-color-secondary-light: #CCF7EF;
+  --gl-color-secondary-dark: #008B6B;
+  --gl-color-accent-primary: #334155;
+  --gl-color-accent-secondary: #475569;
+  --gl-color-accent-tertiary: #64748B;
+  --gl-color-accent-light: #E2E8F0;
+  --gl-color-accent-dark: #1E293B;
+  --gl-color-text-primary: #0F172A;
+  --gl-color-text-secondary: #334155;
+  --gl-color-text-tertiary: #64748B;
+  --gl-color-text-inverse: #FFFFFF;
+  --gl-color-text-on-primary: #FFFFFF;
+  --gl-color-text-on-secondary: #0F172A;
+  --gl-color-background-primary: #FFFFFF;
+  --gl-color-background-secondary: #F8FAFC;
+  --gl-color-background-tertiary: #F1F5F9;
+  --gl-color-background-subtle: #FAFBFC;
+  --gl-color-background-inverse: #0F172A;
+  --gl-color-border-primary: #E2E8F0;
+  --gl-color-border-secondary: #CBD5E1;
+  --gl-color-border-accent: #00D4AA;
+  --gl-color-border-focus: #F59E0B;
+  --gl-color-status-success: #10B981;
+  --gl-color-status-warning: #F59E0B;
+  --gl-color-status-error: #EF4444;
+  --gl-color-status-info: #3B82F6;
+  --gl-color-interactive-hover: #F1F5F9;
+  --gl-color-interactive-active: #E2E8F0;
+  --gl-color-interactive-disabled: #CBD5E1;
+  --gl-font-h1-desktop-family: Manrope, sans-serif;
+  --gl-font-h1-desktop-size: 60px;
+  --gl-font-h1-desktop-weight: 700;
+  --gl-font-h1-desktop-line-height: 1.1;
+  --gl-font-h1-desktop-letter-spacing: -0.02em;
+  --gl-font-h1-mobile-family: Manrope, sans-serif;
+  --gl-font-h1-mobile-size: 36px;
+  --gl-font-h1-mobile-weight: 700;
+  --gl-font-h1-mobile-line-height: 1.2;
+  --gl-font-h1-mobile-letter-spacing: -0.02em;
+  --gl-font-h2-desktop-family: Manrope, sans-serif;
+  --gl-font-h2-desktop-size: 48px;
+  --gl-font-h2-desktop-weight: 700;
+  --gl-font-h2-desktop-line-height: 1.2;
+  --gl-font-h2-desktop-letter-spacing: -0.01em;
+  --gl-font-h2-mobile-family: Manrope, sans-serif;
+  --gl-font-h2-mobile-size: 30px;
+  --gl-font-h2-mobile-weight: 700;
+  --gl-font-h2-mobile-line-height: 1.3;
+  --gl-font-h2-mobile-letter-spacing: -0.01em;
+  --gl-font-h3-desktop-family: Manrope, sans-serif;
+  --gl-font-h3-desktop-size: 36px;
+  --gl-font-h3-desktop-weight: 600;
+  --gl-font-h3-desktop-line-height: 1.3;
+  --gl-font-h3-desktop-letter-spacing: -0.01em;
+  --gl-font-h3-mobile-family: Manrope, sans-serif;
+  --gl-font-h3-mobile-size: 24px;
+  --gl-font-h3-mobile-weight: 600;
+  --gl-font-h3-mobile-line-height: 1.4;
+  --gl-font-h3-mobile-letter-spacing: -0.01em;
+  --gl-font-h4-desktop-family: Manrope, sans-serif;
+  --gl-font-h4-desktop-size: 24px;
+  --gl-font-h4-desktop-weight: 600;
+  --gl-font-h4-desktop-line-height: 1.4;
+  --gl-font-h4-mobile-family: Manrope, sans-serif;
+  --gl-font-h4-mobile-size: 20px;
+  --gl-font-h4-mobile-weight: 600;
+  --gl-font-h4-mobile-line-height: 1.4;
+  --gl-font-h5-desktop-family: Manrope, sans-serif;
+  --gl-font-h5-desktop-size: 20px;
+  --gl-font-h5-desktop-weight: 600;
+  --gl-font-h5-desktop-line-height: 1.5;
+  --gl-font-h5-mobile-family: Manrope, sans-serif;
+  --gl-font-h5-mobile-size: 18px;
+  --gl-font-h5-mobile-weight: 600;
+  --gl-font-h5-mobile-line-height: 1.5;
+  --gl-font-h6-desktop-family: Manrope, sans-serif;
+  --gl-font-h6-desktop-size: 16px;
+  --gl-font-h6-desktop-weight: 600;
+  --gl-font-h6-desktop-line-height: 1.5;
+  --gl-font-h6-mobile-family: Manrope, sans-serif;
+  --gl-font-h6-mobile-size: 16px;
+  --gl-font-h6-mobile-weight: 600;
+  --gl-font-h6-mobile-line-height: 1.5;
+  --gl-font-body-medium-family: Manrope, sans-serif;
+  --gl-font-body-medium-size: 16px;
+  --gl-font-body-medium-weight: 400;
+  --gl-font-body-medium-line-height: 1.6;
+  --gl-font-body-small-family: Manrope, sans-serif;
+  --gl-font-body-small-size: 14px;
+  --gl-font-body-small-weight: 400;
+  --gl-font-body-small-line-height: 1.5;
+  --gl-font-button-family: Manrope, sans-serif;
+  --gl-font-button-size: 16px;
+  --gl-font-button-weight: 600;
+  --gl-font-button-line-height: 1.5;
+  --gl-font-link-family: Manrope, sans-serif;
+  --gl-font-link-size: 16px;
+  --gl-font-link-weight: 500;
+  --gl-font-link-line-height: 1.5;
+  --gl-font-caption-family: Manrope, sans-serif;
+  --gl-font-caption-size: 12px;
+  --gl-font-caption-weight: 400;
+  --gl-font-caption-line-height: 1.4;
+  --gl-font-label-family: Manrope, sans-serif;
+  --gl-font-label-size: 14px;
+  --gl-font-label-weight: 500;
+  --gl-font-label-line-height: 1.4;
+  --gl-space-xs: 4px;
+  --gl-space-sm: 8px;
+  --gl-space-md: 16px;
+  --gl-space-lg: 24px;
+  --gl-space-xl: 32px;
+  --gl-space-2xl: 48px;
+  --gl-space-3xl: 64px;
+  --gl-space-4xl: 96px;
+  --gl-space-5xl: 128px;
+  --gl-space-6xl: 192px;
+  --gl-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --gl-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --gl-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --gl-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --gl-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --gl-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  --gl-shadow-none: none;
+  --gl-duration-instant: 0ms;
+  --gl-duration-fast: 150ms;
+  --gl-duration-normal: 300ms;
+  --gl-duration-slow: 500ms;
+  --gl-duration-slower: 750ms;
+  --gl-easing-linear: linear;
+  --gl-easing-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --gl-easing-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --gl-easing-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --gl-easing-ease-in-back: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --gl-easing-ease-out-back: cubic-bezier(0.175, 0.885, 0.320, 1.275);
+}
+
+/* Theme-specific component styles */
+[data-theme="operator"] .btn-primary,
+.theme-operator .btn-primary {
+  background-color: var(--gl-color-primary-primary);
+  color: var(--gl-color-text-on-primary);
+  border-color: var(--gl-color-primary-primary);
+}
+
+[data-theme="operator"] .btn-primary:hover,
+.theme-operator .btn-primary:hover {
+  background-color: var(--gl-color-primary-secondary);
+  border-color: var(--gl-color-primary-secondary);
+}
+
+[data-theme="operator"] .btn-secondary,
+.theme-operator .btn-secondary {
+  background-color: transparent;
+  color: var(--gl-color-primary-primary);
+  border-color: var(--gl-color-primary-primary);
+}
+
+[data-theme="operator"] .btn-secondary:hover,
+.theme-operator .btn-secondary:hover {
+  background-color: var(--gl-color-primary-primary);
+  color: var(--gl-color-text-on-primary);
+}
+
+[data-theme="operator"] .link,
+.theme-operator .link {
+  color: var(--gl-color-primary-primary);
+}
+
+[data-theme="operator"] .link:hover,
+.theme-operator .link:hover {
+  color: var(--gl-color-primary-secondary);
+}

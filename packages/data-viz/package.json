@@ -1,0 +1,58 @@
+{
+  "name": "@greenlink/data-viz",
+  "version": "1.0.0",
+  "description": "GreenLink Capital Data Visualization Components - Charts and dashboard components for financial data",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --external react",
+    "lint": "eslint src/",
+    "type-check": "tsc --noEmit",
+    "dev": "storybook dev -p 6008",
+    "build-storybook": "storybook build"
+  },
+  "peerDependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "dependencies": {
+    "@greenlink/ui": "workspace:*",
+    "@greenlink/design-tokens": "workspace:*",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "d3": "^7.8.5",
+    "framer-motion": "^12.23.11",
+    "recharts": "^2.10.3",
+    "tailwind-merge": "^3.3.1"
+  },
+  "devDependencies": {
+    "@greenlink/tsconfig": "workspace:*",
+    "@storybook/addon-essentials": "^7.6.17",
+    "@storybook/addon-interactions": "^7.6.17",
+    "@storybook/addon-links": "^7.6.17",
+    "@storybook/blocks": "^7.6.17",
+    "@storybook/react": "^7.6.17",
+    "@storybook/react-vite": "^7.6.17",
+    "@storybook/testing-library": "^0.2.2",
+    "@types/d3": "^7.4.3",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "storybook": "^7.6.17",
+    "tailwindcss": "^3.4.17",
+    "tsup": "^8.0.1",
+    "typescript": "^5.8.3"
+  }
+}

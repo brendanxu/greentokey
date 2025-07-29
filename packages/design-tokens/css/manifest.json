@@ -1,0 +1,58 @@
+{
+  "version": "1.0.0",
+  "generated": "2025-07-28T22:58:28.379Z",
+  "files": {
+    "master": {
+      "normal": "design-system.css",
+      "minified": "design-system.min.css",
+      "description": "Complete design system with all themes"
+    },
+    "tailwind": {
+      "normal": "tailwind-integration.css",
+      "minified": "tailwind-integration.min.css",
+      "description": "Tailwind CSS integration utilities"
+    },
+    "themes": {
+      "investor": {
+        "file": "investor.css",
+        "displayName": "Investor Portal",
+        "portal": "investor",
+        "description": "Investor Portal theme styles"
+      },
+      "issuer": {
+        "file": "issuer.css",
+        "displayName": "Issuer Portal",
+        "portal": "issuer",
+        "description": "Issuer Portal theme styles"
+      },
+      "partner": {
+        "file": "partner.css",
+        "displayName": "Partner Portal",
+        "portal": "partner",
+        "description": "Partner Portal theme styles"
+      },
+      "operator": {
+        "file": "operator.css",
+        "displayName": "Operator Console",
+        "portal": "operator",
+        "description": "Operator Console theme styles"
+      },
+      "website": {
+        "file": "website.css",
+        "displayName": "Public Website",
+        "portal": "website",
+        "description": "Public Website theme styles"
+      }
+    }
+  },
+  "usage": {
+    "cdn": {
+      "master": "<link rel=\"stylesheet\" href=\"./css/design-system.min.css\">",
+      "theme": "<link rel=\"stylesheet\" href=\"./css/[theme-name].css\">"
+    },
+    "import": {
+      "master": "@import './css/design-system.css';",
+      "theme": "@import './css/[theme-name].css';"
+    }
+  }
+}

@@ -1,0 +1,385 @@
+name: Security Scanning
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly on Monday at 6 AM
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  # ============================================
+  # Static Application Security Testing (SAST)
+  # ============================================
+  codeql-analysis:
+    name: CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript', 'python']
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
+          
+      - name: Setup Node.js (for JavaScript analysis)
+        if: matrix.language == 'javascript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install frontend dependencies
+        if: matrix.language == 'javascript'
+        run: npm ci
+        
+      - name: Build Next.js application
+        if: matrix.language == 'javascript'
+        run: npm run build
+        
+      - name: Setup Python (for Python analysis)
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Install backend dependencies
+        if: matrix.language == 'python'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{matrix.language}}"
+
+  # ============================================
+  # Semgrep SAST Scanning
+  # ============================================
+  semgrep-scan:
+    name: Semgrep Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run Semgrep
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/owasp-top-ten
+            p/react
+            p/python
+            p/typescript
+        env:
+          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+
+  # ============================================
+  # Python Security Scanning (Bandit)
+  # ============================================
+  bandit-scan:
+    name: Bandit Python Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          
+      - name: Install Bandit
+        run: pip install bandit[toml]
+        
+      - name: Run Bandit security scan
+        run: |
+          bandit -r app/ -f json -o bandit-report.json || true
+          bandit -r app/ -f txt
+          
+      - name: Upload Bandit results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: bandit-results
+          path: bandit-report.json
+
+  # ============================================
+  # Software Composition Analysis (SCA)
+  # ============================================
+  snyk-scan:
+    name: Snyk Vulnerability Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --json-file-output=snyk-report.json
+          
+      - name: Upload Snyk results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: snyk-results
+          path: snyk-report.json
+          
+      - name: Run Snyk for Python dependencies
+        run: |
+          npm install -g snyk
+          snyk auth ${{ secrets.SNYK_TOKEN }}
+          snyk test --file=requirements.txt --package-manager=pip \
+                   --severity-threshold=high \
+                   --json > snyk-python-report.json || true
+          
+      - name: Upload Python Snyk results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: snyk-python-results
+          path: snyk-python-report.json
+
+  # ============================================
+  # OWASP Dependency Check
+  # ============================================
+  dependency-check:
+    name: OWASP Dependency Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'GreenLink Capital'
+          path: '.'
+          format: 'ALL'
+          args: >
+            --enableRetired
+            --enableExperimental
+            --failOnCVSS 7
+            --exclude "**/node_modules/**"
+            --exclude "**/test/**"
+            --exclude "**/*test*"
+            
+      - name: Upload OWASP results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: owasp-dependency-check-results
+          path: reports/
+
+  # ============================================
+  # Container Security Scanning
+  # ============================================
+  trivy-scan:
+    name: Trivy Container Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Build Docker images
+        run: |
+          # Build frontend image
+          docker build -t greenlink-frontend:${{ github.sha }} -f Dockerfile .
+          
+          # Build backend image  
+          docker build -t greenlink-backend:${{ github.sha }} -f backend/Dockerfile ./backend
+          
+      - name: Run Trivy vulnerability scanner - Frontend
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'greenlink-frontend:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-frontend-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          
+      - name: Run Trivy vulnerability scanner - Backend
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'greenlink-backend:${{ github.sha }}'
+          format: 'sarif'
+          output: 'trivy-backend-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: '.'
+          
+      - name: Generate Trivy HTML reports
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            -v ${{ github.workspace }}:/workspace -w /workspace \
+            aquasec/trivy image --format template --template "@contrib/html.tpl" \
+            -o trivy-frontend-report.html greenlink-frontend:${{ github.sha }}
+            
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            -v ${{ github.workspace }}:/workspace -w /workspace \
+            aquasec/trivy image --format template --template "@contrib/html.tpl" \
+            -o trivy-backend-report.html greenlink-backend:${{ github.sha }}
+            
+      - name: Upload Trivy HTML reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: trivy-reports
+          path: |
+            trivy-frontend-report.html
+            trivy-backend-report.html
+
+  # ============================================
+  # Secret Scanning
+  # ============================================
+  secret-scan:
+    name: Secret Detection Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history for secret scanning
+          
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+          
+      - name: Run GitLeaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  # ============================================
+  # Security Consolidation & Reporting
+  # ============================================
+  security-report:
+    name: Security Report Consolidation
+    runs-on: ubuntu-latest
+    needs: [codeql-analysis, semgrep-scan, bandit-scan, snyk-scan, dependency-check, trivy-scan, secret-scan]
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download all security artifacts
+        uses: actions/download-artifact@v3
+        
+      - name: Setup Python for report generation
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install report dependencies
+        run: |
+          pip install jinja2 requests
+          
+      - name: Generate consolidated security report
+        run: |
+          python scripts/generate-security-report.py \
+            --bandit-report bandit-results/bandit-report.json \
+            --snyk-report snyk-results/snyk-report.json \
+            --snyk-python-report snyk-python-results/snyk-python-report.json \
+            --owasp-report owasp-dependency-check-results/ \
+            --output security-report.html
+            
+      - name: Check security thresholds
+        run: |
+          python scripts/check-security-thresholds.py \
+            --report security-report.html \
+            --max-critical 0 \
+            --max-high 5 \
+            --max-medium 20
+            
+      - name: Upload consolidated security report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: security-report
+          path: |
+            security-report.html
+            security-summary.json
+            
+      - name: Comment PR with security summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            
+            try {
+              const summary = JSON.parse(fs.readFileSync('security-summary.json', 'utf8'));
+              
+              const comment = `## 🔒 Security Scan Results
+              
+              | Scanner | Critical | High | Medium | Low |
+              |---------|----------|------|--------|-----|
+              | Bandit | ${summary.bandit.critical} | ${summary.bandit.high} | ${summary.bandit.medium} | ${summary.bandit.low} |
+              | Snyk (Node) | ${summary.snyk.critical} | ${summary.snyk.high} | ${summary.snyk.medium} | ${summary.snyk.low} |
+              | Snyk (Python) | ${summary.snyk_python.critical} | ${summary.snyk_python.high} | ${summary.snyk_python.medium} | ${summary.snyk_python.low} |
+              | OWASP | ${summary.owasp.critical} | ${summary.owasp.high} | ${summary.owasp.medium} | ${summary.owasp.low} |
+              | Trivy | ${summary.trivy.critical} | ${summary.trivy.high} | ${summary.trivy.medium} | ${summary.trivy.low} |
+              
+              **Overall Status**: ${summary.overall_status}
+              
+              ${summary.critical_count > 0 ? '⚠️ **Action Required**: Critical vulnerabilities found!' : '✅ No critical vulnerabilities detected'}
+              
+              [View Detailed Report](${summary.report_url})`;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } catch (error) {
+              console.log('Could not read security summary:', error);
+            }

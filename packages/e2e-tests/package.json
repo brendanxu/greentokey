@@ -1,0 +1,54 @@
+{
+  "name": "@greenlink-capital/e2e-tests",
+  "version": "1.0.0",
+  "description": "End-to-end integration tests for GreenLink Capital platform",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report",
+    "test:cross-browser": "playwright test --project=chromium --project=firefox --project=webkit",
+    "test:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
+    "test:api": "newman run config/api-collection.json -e config/test-environment.json",
+    "test:performance": "lighthouse-batch -s config/lighthouse-urls.txt --no-report --output json",
+    "test:accessibility": "axe-playwright-test",
+    "test:visual": "playwright test --grep @visual",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:critical": "playwright test --grep @critical",
+    "install-browsers": "playwright install",
+    "install-deps": "playwright install-deps",
+    "generate-report": "allure generate allure-results --clean",
+    "serve-report": "allure serve allure-results"
+  },
+  "dependencies": {
+    "@playwright/test": "^1.40.1",
+    "@axe-core/playwright": "^4.8.3",
+    "newman": "^6.0.0",
+    "lighthouse-batch": "^2.0.3",
+    "allure-playwright": "^2.9.2",
+    "dotenv": "^16.3.1",
+    "@faker-js/faker": "^8.3.1",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "@types/lodash": "^4.14.202",
+    "typescript": "^5.3.3",
+    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0"
+  },
+  "keywords": [
+    "e2e",
+    "integration-tests",
+    "playwright",
+    "api-testing",
+    "accessibility",
+    "performance",
+    "visual-testing"
+  ],
+  "author": "GreenLink Capital QA Team",
+  "license": "MIT"
+}

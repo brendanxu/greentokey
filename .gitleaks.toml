@@ -1,0 +1,153 @@
+# GitLeaks configuration for GreenLink Capital
+# Detects secrets and sensitive information in git repositories
+
+title = "GreenLink Capital GitLeaks Configuration"
+
+[extend]
+# Extend default rules with custom patterns
+useDefault = true
+
+[[rules]]
+id = "greenlink-jwt-secret"
+description = "GreenLink JWT Secret"
+regex = '''(?i)(jwt[_-]?secret|access[_-]?secret|refresh[_-]?secret)\s*[:=]\s*["\'][^"\']{32,}["\']'''
+path = '''.*\.(js|ts|jsx|tsx|json|yaml|yml|env)$'''
+tags = ["jwt", "secret", "greenlink"]
+
+[[rules]]
+id = "greenlink-api-key"
+description = "GreenLink API Key"
+regex = '''(?i)(api[_-]?key|access[_-]?key)\s*[:=]\s*["\'][A-Za-z0-9_-]{20,}["\']'''
+path = '''.*\.(js|ts|jsx|tsx|json|yaml|yml|env)$'''
+tags = ["api-key", "greenlink"]
+
+[[rules]]
+id = "database-connection-string"
+description = "Database Connection String"
+regex = '''(?i)(database[_-]?url|db[_-]?url|connection[_-]?string)\s*[:=]\s*["\']postgresql://[^"\']+["\']'''
+path = '''.*\.(js|ts|jsx|tsx|json|yaml|yml|env)$'''
+tags = ["database", "postgresql"]
+
+[[rules]]
+id = "redis-connection-string"
+description = "Redis Connection String"
+regex = '''(?i)(redis[_-]?url)\s*[:=]\s*["\']redis://[^"\']+["\']'''
+path = '''.*\.(js|ts|jsx|tsx|json|yaml|yml|env)$'''
+tags = ["redis", "cache"]
+
+[[rules]]
+id = "encryption-key"
+description = "Encryption Key"
+regex = '''(?i)(encryption[_-]?key|crypto[_-]?key)\s*[:=]\s*["\'][A-Za-z0-9+/=]{32,}["\']'''
+path = '''.*\.(js|ts|jsx|tsx|json|yaml|yml|env)$'''
+tags = ["encryption", "crypto"]
+
+[[rules]]
+id = "twilio-credentials"
+description = "Twilio Credentials"
+regex = '''(?i)(twilio[_-]?account[_-]?sid|twilio[_-]?auth[_-]?token)\s*[:=]\s*["\'][A-Za-z0-9]{32,}["\']'''
+path = '''.*\.(js|ts|jsx|tsx|json|yaml|yml|env)$'''
+tags = ["twilio", "sms", "communication"]
+
+[[rules]]
+id = "aws-credentials"
+description = "AWS Credentials"
+regex = '''(?i)(aws[_-]?access[_-]?key[_-]?id|aws[_-]?secret[_-]?access[_-]?key)\s*[:=]\s*["\'][A-Za-z0-9+/]{20,}["\']'''
+path = '''.*\.(js|ts|jsx|tsx|json|yaml|yml|env)$'''
+tags = ["aws", "cloud"]
+
+[[rules]]
+id = "vercel-token"
+description = "Vercel Token"
+regex = '''(?i)(vercel[_-]?token)\s*[:=]\s*["\'][A-Za-z0-9_-]{20,}["\']'''
+path = '''.*\.(js|ts|jsx|tsx|json|yaml|yml|env)$'''
+tags = ["vercel", "deployment"]
+
+[[rules]]
+id = "github-token"
+description = "GitHub Token"
+regex = '''(?i)(github[_-]?token|gh[_-]?token)\s*[:=]\s*["\']gh[a-z]_[A-Za-z0-9_]{36}["\']'''
+path = '''.*\.(js|ts|jsx|tsx|json|yaml|yml|env)$'''
+tags = ["github", "git"]
+
+[[rules]]
+id = "slack-webhook"
+description = "Slack Webhook URL"
+regex = '''https://hooks\.slack\.com/services/[A-Z0-9]{9}/[A-Z0-9]{9}/[A-Za-z0-9]{24}'''
+path = '''.*\.(js|ts|jsx|tsx|json|yaml|yml|env)$'''
+tags = ["slack", "webhook", "notification"]
+
+[[rules]]
+id = "private-key"
+description = "Private Key"
+regex = '''-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----'''
+path = '''.*\.(js|ts|jsx|tsx|json|yaml|yml|pem|key)$'''
+tags = ["private-key", "certificate"]
+
+# Allowlisted files and patterns
+[allowlist]
+description = "Allowlist for false positives"
+paths = [
+    # Test files with dummy credentials
+    '''.*test.*\.(js|ts|jsx|tsx)$''',
+    '''.*spec.*\.(js|ts|jsx|tsx)$''',
+    '''.*mock.*\.(js|ts|jsx|tsx)$''',
+    # Example and template files
+    '''.*\.example$''',
+    '''.*\.template$''',
+    # Documentation
+    '''.*\.md$''',
+    '''.*\.mdx$''',
+    # Build output
+    '''.next/.*''',
+    '''dist/.*''',
+    '''build/.*''',
+    # Dependencies
+    '''node_modules/.*''',
+    '''pnpm-lock\.yaml$''',
+    '''package-lock\.json$''',
+    # Git
+    '''\.git/.*''',
+    # Logs
+    '''.*\.log$'''
+]
+
+regexes = [
+    # Common false positives
+    '''password.*example''',
+    '''password.*test''',
+    '''password.*demo''',
+    '''password.*123''',
+    '''secret.*example''',
+    '''secret.*test''',
+    '''key.*example''',
+    '''key.*test''',
+    # Environment variable references
+    '''process\.env\.''',
+    '''import\.meta\.env\.''',
+    # Configuration templates
+    '''NEXT_PUBLIC_''',
+    '''NODE_ENV''',
+    '''TURBO_''',
+    # Documentation examples
+    '''<your[_-]?secret[_-]?here>''',
+    '''<your[_-]?key[_-]?here>''',
+    '''your[_-]?secret[_-]?key''',
+    '''your[_-]?api[_-]?key'''
+]
+
+# Entropy thresholds for generic detection
+[generic]
+# Base64 encoded secrets
+[[generic.secrets]]
+description = "Base64 High Entropy"
+regex = '''[A-Za-z0-9+/]{40,}={0,2}'''
+entropy = 4.5
+path = '''.*\.(js|ts|jsx|tsx|json|yaml|yml)$'''
+
+# Hexadecimal secrets
+[[generic.secrets]]
+description = "Hex High Entropy"  
+regex = '''[a-fA-F0-9]{32,}'''
+entropy = 3.5
+path = '''.*\.(js|ts|jsx|tsx|json|yaml|yml)$'''
