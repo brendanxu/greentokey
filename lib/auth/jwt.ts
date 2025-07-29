@@ -57,7 +57,7 @@ export function generateAccessToken(
     // Standard JWT claims
     sub: user.id,
     iss: JWT_CONFIG.ISSUER,
-    aud: JWT_CONFIG.AUDIENCE,
+    aud: [...JWT_CONFIG.AUDIENCE],
     exp: now + parseTimeString(JWT_CONFIG.ACCESS_EXPIRY),
     iat: now,
     nbf: now,
@@ -152,11 +152,11 @@ export function verifyAccessToken(token: string): JWTPayload {
     const decoded = jwt.verify(token, getVerificationKey(), {
       algorithms: [JWT_CONFIG.ALGORITHM],
       issuer: JWT_CONFIG.ISSUER,
-      audience: JWT_CONFIG.AUDIENCE,
+      audience: [...JWT_CONFIG.AUDIENCE],
       clockTolerance: JWT_CONFIG.LEEWAY,
-    }) as JWTPayload;
-
-    return decoded;
+    });
+    
+    return decoded as JWTPayload;
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       throw new Error('Token expired');

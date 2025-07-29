@@ -302,7 +302,7 @@ export const AUTH_CONFIG: AuthConfig = {
     accessTokenExpiry: JWT_CONFIG.ACCESS_EXPIRY,
     refreshTokenExpiry: JWT_CONFIG.REFRESH_EXPIRY,
     issuer: JWT_CONFIG.ISSUER,
-    audience: JWT_CONFIG.AUDIENCE,
+    audience: [...JWT_CONFIG.AUDIENCE],
     algorithm: JWT_CONFIG.ALGORITHM,
   },
   
@@ -332,7 +332,7 @@ export const AUTH_CONFIG: AuthConfig = {
     passwordPolicy: PASSWORD_POLICY,
     rateLimits: RATE_LIMITS,
     requireMfaForRoles: ['issuer', 'partner', 'operator'],
-    allowedOrigins: SECURITY_CONFIG.allowedOrigins,
+    allowedOrigins: [...SECURITY_CONFIG.allowedOrigins],
   },
 } as const;
 

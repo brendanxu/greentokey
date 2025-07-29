@@ -144,7 +144,7 @@ export function useContractEvents(
         // 合并并去重
         const allEvents = [...sentEvents, ...receivedEvents];
         const uniqueEvents = allEvents.filter((event, index, self) => 
-          index === self.findIndex(e => e.transactionHash === event.transactionHash && e.logIndex === event.logIndex)
+          index === self.findIndex(e => e.transactionHash === event.transactionHash && e.index === event.index)
         );
 
         // 按时间排序（最新的在前面）

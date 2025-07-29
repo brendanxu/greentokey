@@ -59,7 +59,7 @@ function TokenBalanceItem({ tokenAddress, tokenName, showValue = true }: TokenBa
         ) : (
           <div>
             <p className="font-semibold text-gray-900">
-              {showValue ? formatBalance(formattedBalance) : '•••••'}
+              {showValue ? formattedBalance : '•••••'}
             </p>
             <p className="text-xs text-gray-500">{tokenInfo?.symbol}</p>
           </div>

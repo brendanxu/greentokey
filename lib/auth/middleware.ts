@@ -52,8 +52,8 @@ export function createAuthMiddleware(options: {
       // Extract tokens from request
       const { accessToken, refreshToken } = extractTokenFromRequest({
         headers: {
-          authorization: req.headers.get('authorization'),
-          cookie: req.headers.get('cookie'),
+          authorization: req.headers.get('authorization') || undefined,
+          cookie: req.headers.get('cookie') || undefined,
         },
         url: req.url,
       });
@@ -322,8 +322,8 @@ function getClientIP(req: NextRequest): string {
     return cfConnectingIP;
   }
   
-  // Fallback to remote address
-  return req.ip || '127.0.0.1';
+  // Fallback to default local IP since NextRequest doesn't have ip property
+  return '127.0.0.1';
 }
 
 /**

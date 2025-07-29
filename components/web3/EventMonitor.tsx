@@ -307,7 +307,7 @@ export function EventMonitor({
               <EventItem
                 key={event.id}
                 event={event}
-                userAddress={address}
+                userAddress={address || undefined}
               />
             ))}
           </div>

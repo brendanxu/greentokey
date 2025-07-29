@@ -25,24 +25,14 @@ const nextConfig = {
       'lodash-es',
       '@radix-ui/react-icons',
       'framer-motion'
-    ],
-    
-    // Server Components optimization
-    serverComponentsExternalPackages: [
-      '@prisma/client',
-      'mysql2'
-    ],
-    
-    // Enable advanced optimizations
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
+    ]
   },
+  
+  // Server Components optimization (removed for Pages Router compatibility)
+  // serverExternalPackages: [
+  //   '@prisma/client',
+  //   'mysql2'
+  // ],
   
   // Build-time optimizations
   compiler: {
@@ -193,6 +183,7 @@ const nextConfig = {
   // Build settings
   eslint: {
     ignoreDuringBuilds: false,
+    dirs: ['pages', 'components', 'lib'] // Only lint main directories
   },
   typescript: {
     ignoreBuildErrors: false,
