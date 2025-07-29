@@ -21,7 +21,10 @@
     "size:check": "npm run build && bundlesize"
   },
   "dependencies": {
-    "ethers": "^6.8.1"
+    "ethers": "^6.8.1",
+    "next": "^15.4.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^15.0.0",

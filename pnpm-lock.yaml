@@ -11,6 +11,15 @@ importers:
       ethers:
         specifier: ^6.8.1
         version: 6.15.0
+      next:
+        specifier: ^15.4.4
+        version: 15.4.4(@babel/core@7.28.0)(@playwright/test@1.54.1)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react:
+        specifier: ^19.1.0
+        version: 19.1.1
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.1.1(react@19.1.1)
     devDependencies:
       '@next/bundle-analyzer':
         specifier: ^15.0.0
