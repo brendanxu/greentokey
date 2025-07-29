@@ -89,19 +89,28 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1 }}
-          className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
+          className="mt-20 bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-primary/10"
         >
-          {[
-            { value: '$100M+', label: 'Assets Under Management' },
-            { value: '50+', label: 'Institutional Partners' },
-            { value: '95%', label: 'Carbon Reduction Verified' },
-            { value: '24/7', label: 'Real-time Monitoring' },
-          ].map((stat, index) => (
-            <div key={index} className="space-y-2">
-              <div className="text-2xl md:text-3xl font-bold text-primary">{stat.value}</div>
-              <div className="text-sm text-text-tertiary">{stat.label}</div>
-            </div>
-          ))}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { value: '$100M+', label: 'Assets Under Management', icon: '💰' },
+              { value: '50+', label: 'Institutional Partners', icon: '🤝' },
+              { value: '95%', label: 'Carbon Reduction Verified', icon: '✅' },
+              { value: '24/7', label: 'Real-time Monitoring', icon: '📊' },
+            ].map((stat, index) => (
+              <motion.div 
+                key={index} 
+                className="space-y-3"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.2 + index * 0.1 }}
+              >
+                <div className="text-2xl mb-2">{stat.icon}</div>
+                <div className="text-3xl md:text-4xl font-bold gradient-text">{stat.value}</div>
+                <div className="text-sm text-text-secondary font-medium">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
         </motion.div>
       </div>
 

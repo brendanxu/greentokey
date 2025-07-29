@@ -84,6 +84,12 @@
   }
 
   /* ADDX 卡片组件 */
+  .card {
+    @apply bg-bg-primary p-6 rounded-xl border border-transparent shadow-sm;
+    @apply transition-all duration-300 hover:-translate-y-1;
+    @apply hover:border-border-primary hover:shadow-card-hover;
+  }
+
   .card-feature {
     @apply bg-bg-primary p-6 rounded-xl border border-transparent;
     @apply transition-all duration-300 hover:-translate-y-1;
@@ -126,6 +132,10 @@
     @apply bg-gradient-to-r from-green-primary to-green-dark bg-clip-text text-transparent;
   }
 
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-blue to-green-primary bg-clip-text text-transparent;
+  }
+
   /* 可访问性辅助类 */
   .sr-only {
     @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
@@ -156,6 +166,14 @@
 
   .bg-radial-gradient {
     background: radial-gradient(circle at 50% 50%, rgba(0, 212, 170, 0.1) 0%, transparent 50%);
+  }
+
+  .bg-hero-gradient {
+    background: linear-gradient(135deg, rgba(0, 82, 255, 0.05) 0%, rgba(0, 212, 170, 0.05) 100%);
+  }
+
+  .section-padding {
+    @apply py-16 md:py-24;
   }
 }
 

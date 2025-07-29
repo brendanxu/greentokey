@@ -68,48 +68,19 @@ export default function WhyChooseUs() {
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-2xl p-12 text-center"
+          className="bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 rounded-2xl p-8 text-center border border-primary/10"
         >
-          <h3 className="text-3xl font-bold mb-6">
-            Ready to Join the Green Finance Revolution?
+          <h3 className="text-2xl font-bold mb-4">
+            Trusted by Leading Institutions
           </h3>
-          <p className="text-lg text-text-secondary mb-8 max-w-2xl mx-auto">
-            Whether you&apos;re an investor seeking verified green assets or an asset owner looking to unlock global capital, 
-            we&apos;re here to help you succeed.
+          <p className="text-text-secondary mb-6 max-w-2xl mx-auto">
+            Join forward-thinking financial institutions already leveraging our platform for verified green asset exposure.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="btn-primary">
-              Start Your Journey
-            </button>
-            <button className="btn-secondary">
-              Download Whitepaper
-            </button>
-          </div>
+          <button className="btn-secondary">
+            Schedule a Consultation
+          </button>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          viewport={{ once: true }}
-          className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 text-center"
-        >
-          {[
-            { label: 'Years of Experience', value: '10+' },
-            { label: 'Regulatory Approvals', value: '5' },
-            { label: 'Team Members', value: '50+' },
-            { label: 'Countries Served', value: '15' },
-          ].map((stat, index) => (
-            <div key={index}>
-              <div className="text-3xl font-bold gradient-text mb-2">
-                {stat.value}
-              </div>
-              <div className="text-sm text-text-tertiary">
-                {stat.label}
-              </div>
-            </div>
-          ))}
-        </motion.div>
       </div>
     </section>
   )

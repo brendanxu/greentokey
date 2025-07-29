@@ -10,13 +10,20 @@ module.exports = {
       // ADDX 精确设计系统
       colors: {
         // 主色调系统 - 严格按照规格
+        'primary': '#0052FF',
         'primary-blue': '#0052FF',
+        'accent': '#00D4AA',
         'text-primary': '#1A202C',
         'text-secondary': '#4A5568', 
+        'text-tertiary': '#718096',
         'text-on-dark': '#FFFFFF',
         'bg-primary': '#FFFFFF',
         'bg-subtle': '#F7FAFC',
         'border-primary': '#E2E8F0',
+        'border': '#E2E8F0',
+        'background': '#FFFFFF',
+        'background-secondary': '#F7FAFC',
+        'background-tertiary': '#EDF2F7',
         'black': '#000000',
         
         // 绿色金融主题适配
@@ -31,6 +38,8 @@ module.exports = {
       },
       fontSize: {
         // ADDX 排版层级 - 精确匹配
+        'hero-mobile': ['48px', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'hero': ['60px', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
         'h1-desktop': ['60px', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
         'h1-mobile': ['48px', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
         'h2-desktop': ['48px', { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '700' }],
