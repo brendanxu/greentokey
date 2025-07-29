@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -18,25 +19,44 @@
     @apply bg-bg-primary text-text-primary font-manrope antialiased;
   }
 
-  /* ADDX 排版层级 - 精确实现 */
+  /* ADDX 精确排版系统 */
   h1 {
-    @apply text-h1-mobile md:text-h1-desktop font-bold text-text-primary;
+    @apply text-h3 md:text-h1 font-bold text-text-primary;
   }
 
   h2 {
-    @apply text-h2-mobile md:text-h2-desktop font-bold text-text-primary;
+    @apply text-h4 md:text-h2 font-semibold text-text-primary;
   }
 
   h3 {
-    @apply text-h3-mobile md:text-h3-desktop font-semibold text-text-primary;
+    @apply text-h5 md:text-h3 font-semibold text-text-primary;
   }
 
   h4 {
-    @apply text-h4-mobile md:text-h4-desktop font-semibold text-text-primary;
+    @apply text-h6 md:text-h4 font-semibold text-text-primary;
+  }
+
+  h5 {
+    @apply text-body-lg md:text-h5 font-semibold text-text-primary;
+  }
+
+  h6 {
+    @apply text-body-md md:text-h6 font-semibold text-text-primary;
   }
 
   p {
-    @apply text-body-md text-text-secondary;
+    @apply text-body-md text-text-secondary font-normal;
+  }
+
+  /* 数字和金融数据专用样式 */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  .slashed-zero {
+    font-variant-numeric: slashed-zero;
+    font-feature-settings: 'zero' 1;
   }
 
   /* 可访问性焦点状态 - WCAG 2.1 AA */
@@ -118,13 +138,76 @@
     @apply py-16 md:py-24 lg:py-32;
   }
 
-  /* ADDX 文本样式 */
+  /* ADDX 专业排版样式 */
+  .text-display {
+    @apply text-display-sm md:text-display-lg font-extrabold text-text-primary;
+  }
+
   .text-hero {
-    @apply text-h1-mobile md:text-h1-desktop font-bold text-text-primary;
+    @apply text-display-sm md:text-display-md font-bold text-text-primary;
   }
 
   .text-lead {
-    @apply text-body-lg-mobile md:text-body-lg-desktop text-text-secondary;
+    @apply text-body-lg md:text-body-xl text-text-secondary font-light;
+  }
+
+  .text-subtitle {
+    @apply text-h5 md:text-h4 font-medium text-text-secondary;
+  }
+
+  /* 数据展示专用样式 */
+  .stat-number {
+    @apply font-inter font-extrabold tabular-nums text-stat-md md:text-stat-lg;
+  }
+
+  .stat-hero-number {
+    @apply font-inter font-extrabold tabular-nums text-stat-lg md:text-stat-hero;
+  }
+
+  .stat-label {
+    @apply text-stat-label uppercase tracking-wider text-text-tertiary;
+  }
+
+  .price-display {
+    @apply font-inter font-bold tabular-nums text-price-md md:text-price-lg;
+  }
+
+  .percentage-badge {
+    @apply font-inter font-semibold tabular-nums text-percentage;
+  }
+
+  .data-point {
+    @apply font-inter font-medium tabular-nums text-body-sm;
+  }
+
+  /* 金融数据格式化 */
+  .currency-symbol {
+    @apply font-normal text-[0.8em] mr-1;
+  }
+
+  .decimal-places {
+    @apply text-[0.8em] opacity-70;
+  }
+
+  /* 图表和数据可视化 */
+  .chart-label {
+    @apply text-caption font-medium text-text-tertiary uppercase tracking-wide;
+  }
+
+  .chart-value {
+    @apply font-inter font-semibold tabular-nums text-body-md;
+  }
+
+  .data-trend-up {
+    @apply text-green-primary;
+  }
+
+  .data-trend-down {
+    @apply text-red-500;
+  }
+
+  .data-trend-neutral {
+    @apply text-text-tertiary;
   }
 
   /* 绿色金融主题渐变 */

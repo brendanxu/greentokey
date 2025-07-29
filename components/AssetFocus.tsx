@@ -37,10 +37,10 @@ export default function AssetFocus() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-h2 font-bold mb-4">
             A Superior Class of Green Asset
           </h2>
-          <p className="text-lg text-text-secondary max-w-3xl mx-auto">
+          <p className="text-lead max-w-3xl mx-auto">
             China&apos;s CCER represents the gold standard in verifiable carbon reduction assets
           </p>
         </motion.div>
@@ -59,10 +59,10 @@ export default function AssetFocus() {
                 <feature.icon className="w-6 h-6 text-primary" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">
+                <h3 className="text-h5 font-semibold mb-2">
                   {feature.title}
                 </h3>
-                <p className="text-text-secondary">
+                <p className="text-body-md text-text-secondary">
                   {feature.description}
                 </p>
               </div>
@@ -79,10 +79,10 @@ export default function AssetFocus() {
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-              <h3 className="text-2xl font-bold mb-4">
+              <h3 className="text-h3 font-bold mb-4">
                 Methane Reduction: The Climate Game-Changer
               </h3>
-              <p className="text-text-secondary mb-6">
+              <p className="text-body-lg text-text-secondary mb-6 font-light">
                 Our focus on low-concentration gas emission reduction projects targets one of the most potent greenhouse gases. 
                 With methane having 84x the warming potential of CO2 over 20 years, these projects deliver immediate and measurable climate impact.
               </p>
@@ -104,9 +104,9 @@ export default function AssetFocus() {
             <div className="relative">
               <div className="aspect-square bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center">
                 <div className="text-center">
-                  <div className="text-6xl font-bold gradient-text mb-2">84x</div>
-                  <p className="text-text-secondary">More potent than CO2</p>
-                  <p className="text-sm text-text-tertiary mt-1">Over 20 years</p>
+                  <div className="stat-hero-number gradient-text mb-2">84x</div>
+                  <p className="text-body-md text-text-secondary font-medium">More potent than CO2</p>
+                  <p className="text-caption text-text-tertiary mt-1 uppercase tracking-wider">Over 20 years</p>
                 </div>
               </div>
               <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-3xl" />

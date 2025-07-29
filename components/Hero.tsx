@@ -53,7 +53,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-hero-mobile md:text-hero font-bold mb-6 text-text-primary"
+          className="text-display font-extrabold mb-6 text-text-primary"
         >
           The Institutional Gateway to
           <br />
@@ -64,7 +64,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-lg md:text-xl text-text-secondary max-w-3xl mx-auto mb-10"
+          className="text-lead max-w-3xl mx-auto mb-10"
         >
           We provide an end-to-end, compliant solution for tokenizing China&apos;s high-quality CCER assets, 
           connecting global ESG capital with measurable environmental impact.
@@ -105,9 +105,9 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 1.2 + index * 0.1 }}
               >
-                <div className="text-2xl mb-2">{stat.icon}</div>
-                <div className="text-3xl md:text-4xl font-bold gradient-text">{stat.value}</div>
-                <div className="text-sm text-text-secondary font-medium">{stat.label}</div>
+                <div className="text-2xl mb-2 opacity-80">{stat.icon}</div>
+                <div className="stat-number gradient-text">{stat.value}</div>
+                <div className="stat-label">{stat.label}</div>
               </motion.div>
             ))}
           </div>

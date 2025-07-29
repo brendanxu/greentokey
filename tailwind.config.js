@@ -32,29 +32,57 @@ module.exports = {
         'green-light': '#33ddbb',
       },
       fontFamily: {
-        // ADDX 字体系统
+        // ADDX 精确字体系统
         'manrope': ['Manrope', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif'],
+        'inter': ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
         'sans': ['Manrope', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif'],
+        'mono': ['SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'monospace'],
+      },
+      fontWeight: {
+        'light': '300',
+        'normal': '400',
+        'medium': '500',
+        'semibold': '600',
+        'bold': '700',
+        'extrabold': '800',
       },
       fontSize: {
-        // ADDX 排版层级 - 精确匹配
-        'hero-mobile': ['48px', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
-        'hero': ['60px', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
-        'h1-desktop': ['60px', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
-        'h1-mobile': ['48px', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
-        'h2-desktop': ['48px', { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '700' }],
-        'h2-mobile': ['36px', { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '700' }],
-        'h3-desktop': ['24px', { lineHeight: '1.3', letterSpacing: '-0.01em', fontWeight: '600' }],
-        'h3-mobile': ['20px', { lineHeight: '1.3', letterSpacing: '-0.01em', fontWeight: '600' }],
-        'h4-desktop': ['20px', { lineHeight: '1.4', fontWeight: '600' }],
-        'h4-mobile': ['18px', { lineHeight: '1.4', fontWeight: '600' }],
-        'body-lg-desktop': ['18px', { lineHeight: '1.6', fontWeight: '400' }],
-        'body-lg-mobile': ['16px', { lineHeight: '1.6', fontWeight: '400' }],
-        'body-md': ['16px', { lineHeight: '1.7', fontWeight: '400' }],
-        'link': ['16px', { lineHeight: '1.7', fontWeight: '500' }],
-        'button': ['16px', { lineHeight: '1', letterSpacing: '0.01em', fontWeight: '600' }],
-        'caption-desktop': ['14px', { lineHeight: '1.5', fontWeight: '400' }],
-        'caption-mobile': ['12px', { lineHeight: '1.5', fontWeight: '400' }],
+        // ADDX 精确排版系统 - 完整层级
+        'display-xl': ['72px', { lineHeight: '1', letterSpacing: '-0.03em', fontWeight: '800' }],
+        'display-lg': ['64px', { lineHeight: '1.05', letterSpacing: '-0.03em', fontWeight: '800' }],
+        'display-md': ['56px', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'display-sm': ['48px', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'h1': ['40px', { lineHeight: '1.2', letterSpacing: '-0.02em', fontWeight: '700' }],
+        'h2': ['32px', { lineHeight: '1.25', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'h3': ['28px', { lineHeight: '1.3', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'h4': ['24px', { lineHeight: '1.35', letterSpacing: '-0.005em', fontWeight: '600' }],
+        'h5': ['20px', { lineHeight: '1.4', letterSpacing: '0', fontWeight: '600' }],
+        'h6': ['18px', { lineHeight: '1.45', letterSpacing: '0', fontWeight: '600' }],
+        'body-xl': ['20px', { lineHeight: '1.6', letterSpacing: '0', fontWeight: '400' }],
+        'body-lg': ['18px', { lineHeight: '1.65', letterSpacing: '0', fontWeight: '400' }],
+        'body-md': ['16px', { lineHeight: '1.7', letterSpacing: '0', fontWeight: '400' }],
+        'body-sm': ['14px', { lineHeight: '1.5', letterSpacing: '0.01em', fontWeight: '400' }],
+        'caption': ['12px', { lineHeight: '1.5', letterSpacing: '0.02em', fontWeight: '400' }],
+        'overline': ['12px', { lineHeight: '1.5', letterSpacing: '0.08em', fontWeight: '600', textTransform: 'uppercase' }],
+        
+        // 数字专用排版
+        'stat-hero': ['64px', { lineHeight: '1', letterSpacing: '-0.02em', fontWeight: '800' }],
+        'stat-lg': ['48px', { lineHeight: '1', letterSpacing: '-0.01em', fontWeight: '700' }],
+        'stat-md': ['32px', { lineHeight: '1', letterSpacing: '0', fontWeight: '700' }],
+        'stat-sm': ['24px', { lineHeight: '1', letterSpacing: '0', fontWeight: '600' }],
+        'stat-label': ['14px', { lineHeight: '1.4', letterSpacing: '0.02em', fontWeight: '500' }],
+        
+        // 金融数据排版
+        'price-lg': ['40px', { lineHeight: '1', letterSpacing: '-0.01em', fontWeight: '700' }],
+        'price-md': ['28px', { lineHeight: '1', letterSpacing: '0', fontWeight: '600' }],
+        'price-sm': ['20px', { lineHeight: '1', letterSpacing: '0', fontWeight: '600' }],
+        'percentage': ['18px', { lineHeight: '1', letterSpacing: '0', fontWeight: '600' }],
+        
+        // UI专用
+        'button': ['16px', { lineHeight: '1', letterSpacing: '0.02em', fontWeight: '600' }],
+        'button-sm': ['14px', { lineHeight: '1', letterSpacing: '0.02em', fontWeight: '600' }],
+        'link': ['16px', { lineHeight: '1.5', letterSpacing: '0', fontWeight: '500' }],
+        'badge': ['12px', { lineHeight: '1', letterSpacing: '0.04em', fontWeight: '600' }],
       },
       spacing: {
         // 基于4px基准的间距系统
